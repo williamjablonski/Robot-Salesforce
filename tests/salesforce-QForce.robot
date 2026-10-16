@@ -1,0 +1,94 @@
+*** Settings ***
+Documentation       Example end-to-end Salesforce Lightning UI tests using QForce.
+Library             QForce
+Library             String
+Suite Setup         Open Salesforce Session
+Suite Teardown      CloseBrowser
+
+*** Variables ***
+${LOGIN_URL}         %{SF_LOGIN_URL=https://test.salesforce.com}
+${LIGHTNING_URL}     %{SF_LIGHTNING_URL=https://YOUR-DOMAIN.lightning.force.com}
+${ACCOUNT_LIST_URL}  ${LIGHTNING_URL}/lightning/o/Account/list
+
+*** Test Cases ***
+Create Account And Verify Its Details
+    [Documentation]    Creates a uniquely named Account and checks its saved values in Lightning.
+    [Tags]    salesforce    lightning    account    smoke
+
+    ${suffix}=          Generate Random String    8    [LOWER][NUMBERS]
+    ${account_name}=    Set Variable    Copado UI Test ${suffix}
+    ${phone_suffix}=    Generate Random String    8    [NUMBERS]
+    ${phone}=           Set Variable    555${phone_suffix}
+    ${website}=         Set Variable    https://example.com/copado-${suffix}
+    ${description}=     Set Variable    Created by the Copado Salesforce Lightning UI test ${suffix}
+
+    Open Accounts
+    Create Account    ${account_name}    ${phone}    ${website}    ${description}
+    Open Account Details
+    Account Details Should Be    ${account_name}    ${phone}    ${website}    ${description}
+
+Update Account And Verify The Changed Values
+    [Documentation]    Creates an Account, edits it, and verifies the updated values in the Details tab.
+    [Tags]    salesforce    lightning    account    regression
+
+    ${suffix}=              Generate Random String    8    [LOWER][NUMBERS]
+    ${account_name}=        Set Variable    Copado Edit Test ${suffix}
+    ${phone_suffix}=        Generate Random String    8    [NUMBERS]
+    ${original_phone}=      Set Variable    555${phone_suffix}
+    ${updated_phone}=       Set Variable    444${phone_suffix}
+    ${original_website}=    Set Variable    https://example.com/before-${suffix}
+    ${updated_website}=     Set Variable    https://example.com/after-${suffix}
+    ${description}=         Set Variable    Updated by the Copado Salesforce Lightning UI test ${suffix}
+
+    Open Accounts
+    Create Account    ${account_name}    ${original_phone}    ${original_website}    ${description}
+    Edit Account    ${updated_phone}    ${updated_website}
+    Open Account Details
+    Account Details Should Be    ${account_name}    ${updated_phone}    ${updated_website}    ${description}
+
+*** Keywords ***
+Open Salesforce Session
+    OpenBrowser    ${LOGIN_URL}    chrome
+    TypeText       Username    %{SF_USERNAME}
+    TypeSecret     Password    %{SF_PASSWORD}
+    ClickText      Log In
+
+    # Complete any org-specific MFA or SSO step before relying on the authenticated session.
+    VerifyText     Accounts    timeout=60s
+
+Open Accounts
+    GoTo           ${ACCOUNT_LIST_URL}
+    VerifyText     Recently Viewed    timeout=30s
+
+Create Account
+    [Arguments]    ${account_name}    ${phone}    ${website}    ${description}
+
+    ClickText      New
+    VerifyText     New Account    timeout=20s
+    TypeText       Account Name    ${account_name}
+    TypeText       Phone    ${phone}
+    TypeText       Website    ${website}
+    TypeText       Description    ${description}
+    ClickText      Save
+    VerifyText     ${account_name}    timeout=30s
+
+Edit Account
+    [Arguments]    ${phone}    ${website}
+
+    ClickText      Edit
+    VerifyText     Edit Account    timeout=20s
+    TypeText       Phone    ${phone}
+    TypeText       Website    ${website}
+    ClickText      Save
+    VerifyText     ${phone}    timeout=30s
+
+Open Account Details
+    ClickText      Details
+
+Account Details Should Be
+    [Arguments]    ${account_name}    ${phone}    ${website}    ${description}
+
+    VerifyText     ${account_name}
+    VerifyText     ${phone}
+    VerifyText     ${website}
+    VerifyText     ${description}

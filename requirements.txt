@@ -1,0 +1,3 @@
+robotframework>=7.5,<8
+robotframework-seleniumlibrary>=6.7,<7
+qweb>=3.8,<4

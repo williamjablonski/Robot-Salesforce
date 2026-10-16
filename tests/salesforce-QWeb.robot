@@ -1,0 +1,10 @@
+*** Settings ***
+Library    QWeb
+
+*** Test Cases ***
+User Can Log In
+    Open Browser    https://example.com    chrome
+    Type Text       Email       demo@example.com
+    Type Text       Password    changeme
+    Click Text      Sign in
+    Verify Text     Dashboard
