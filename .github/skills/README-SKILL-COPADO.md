@@ -1,76 +1,74 @@
-No **Copilot Chat, em modo Agent**, copie um dos comandos abaixo. Mantenha a skill salva em `.github/skills/salesforce-copado-qa/SKILL.md`.
+In **Copilot Chat, in Agent mode**, copy one of the prompts below. Keep the skill saved at `.github/skills/salesforce-copado-qa/SKILL.md`.
 
-**1. Analisar o projeto**
+**1. Analyze the project**
 ```text
-Use a skill salesforce-copado-qa para analisar este repositório. Identifique as bibliotecas Copado, estrutura dos testes, configurações e comandos de execução. Informe o que está pronto e o que falta para testar.
+Use the salesforce-copado-qa skill to analyze this repository. Identify Copado libraries, test structure, settings, and execution commands. Report what is ready and what is still needed for testing.
 ```
 
-**2. Criar testes manuais**
+**2. Create manual tests**
 ```text
-Use a skill salesforce-copado-qa para criar testes manuais da criação de uma Opportunity no Salesforce Lightning. Inclua cenários positivos, negativos, campos obrigatórios e permissões. Salve os casos em qa/manual/opportunity.md e marque todos como NOT_RUN.
+Use the salesforce-copado-qa skill to create manual tests for creating an Opportunity in Salesforce Lightning. Include positive and negative scenarios, required fields, and permissions. Save the cases in qa/manual/opportunity.md and mark all of them as NOT_RUN.
 ```
 
-**3. Testar uma história de usuário**
+**3. Test a user story**
 ```text
-Use a skill salesforce-copado-qa para analisar a história abaixo. Crie os casos manuais, a matriz de rastreabilidade e os testes automatizados Copado CRT dos cenários P0 e P1. Reutilize as bibliotecas e convenções deste projeto.
+Use the salesforce-copado-qa skill to analyze the story below. Create manual cases, a traceability matrix, and automated Copado CRT tests for P0 and P1 scenarios. Reuse this project's libraries and conventions.
 
-História:
-[cole aqui a história e os critérios de aceite]
+Story:
+[paste the story and acceptance criteria here]
 ```
 
-**4. Automatizar casos manuais existentes**
+**4. Automate existing manual cases**
 ```text
-Use a skill salesforce-copado-qa para automatizar os casos de qa/manual/opportunity.md com Copado CRT e Robot Framework. Reutilize resources e keywords existentes. Confirme as assinaturas das keywords antes de gerar código.
+Use the salesforce-copado-qa skill to automate the cases in qa/manual/opportunity.md with Copado CRT and Robot Framework. Reuse existing resources and keywords. Confirm keyword signatures before generating code.
 ```
 
-**5. Validar os testes sem executar a interface**
+**5. Validate tests without running the UI**
 ```text
-Use a skill salesforce-copado-qa para validar a estrutura dos testes Robot Framework. Confira imports, variáveis e keywords e execute dry-run com a configuração do projeto. Informe os erros encontrados e corrija os que puder.
+Use the salesforce-copado-qa skill to validate the Robot Framework test structure. Check imports, variables, and keywords, and perform a dry run using the project configuration. Report any errors found and fix those you can.
 ```
 
-**6. Executar o smoke**
+**6. Run smoke tests**
 ```text
-Use a skill salesforce-copado-qa para executar os testes com tag smoke na sandbox de QA configurada neste projeto. Use o runner existente. Apresente resultados e caminhos das evidências reais. Se faltar acesso ou configuração, informe o bloqueio.
+Use the salesforce-copado-qa skill to run tests tagged smoke in the QA sandbox configured in this project. Use the existing runner. Present results and paths to actual evidence. If access or configuration is missing, report the blocker.
 ```
 
-**7. Corrigir uma falha**
+**7. Fix a failure**
 ```text
-Use a skill salesforce-copado-qa para analisar a falha abaixo. Investigue se a causa é produto, automação, dados ou ambiente. Corrija a causa identificada e execute novamente o teste afetado, preservando as asserções.
+Use the salesforce-copado-qa skill to analyze the failure below. Investigate whether the cause is the product, automation, data, or environment. Fix the identified cause and rerun the affected test while preserving assertions.
 
-Falha:
-[cole o log ou indique o arquivo]
+Failure:
+[paste the log or specify the file]
 ```
 
-**8. Testar permissões**
+**8. Test permissions**
 ```text
-Use a skill salesforce-copado-qa para criar uma matriz de testes de permissões do objeto Opportunity. Compare as personas disponíveis no projeto e cubra CRUD, field-level security e compartilhamento. Gere casos manuais e automatize os cenários viáveis.
+Use the salesforce-copado-qa skill to create a permissions test matrix for the Opportunity object. Compare the personas available in the project and cover CRUD, field-level security, and sharing. Generate manual cases and automate feasible scenarios.
 ```
 
-**9. Revisar a automação existente**
+**9. Review existing automation**
 ```text
-Use a skill salesforce-copado-qa para revisar os testes deste projeto. Identifique locators frágeis, esperas fixas, dependências entre testes, falta de asserções e problemas de limpeza de dados. Corrija os problemas de maior impacto e valide as alterações.
+Use the salesforce-copado-qa skill to review this project's tests. Identify fragile locators, fixed waits, dependencies between tests, missing assertions, and data cleanup issues. Fix the issues with the greatest impact and validate the changes.
 ```
 
-**Para começar, use o comando 1.** Depois, forneça uma história real usando o comando 3.
+**To get started, use prompt 1.** Then provide a real story using prompt 3.
 
 
-	Copie no **Copilot Chat em modo Agent** e substitua a URL:
+Copy the following into **Copilot Chat in Agent mode** and replace the URL:
 
 ```text
-Use a skill salesforce-copado-qa para explorar o sistema em [COLE A URL] e gerar os casos de teste diretamente neste projeto.
+Use the salesforce-copado-qa skill to explore the system at [PASTE THE URL] and generate test cases directly in this project.
 
-1. Analise a estrutura do repositório e reutilize suas convenções.
-2. Use as ferramentas de navegador disponíveis para acessar a URL. Se precisar de autenticação, permita que eu faça o login, sem solicitar minha senha no chat. Se não houver ferramenta de navegador, informe o recurso necessário.
-3. Explore as telas, menus, formulários e jornadas acessíveis ao usuário autenticado. Faça um inventário das funcionalidades observadas.
-4. Baseie os testes no comportamento observado e nos requisitos encontrados no projeto. Identifique regras inferidas como hipóteses a confirmar.
-5. Gere casos positivos, negativos, de limites, validações e navegação. Para permissões, cubra somente as personas disponíveis e registre as demais como lacunas.
-6. Salve os casos em qa/manual/, separados por funcionalidade, contendo ID, objetivo, pré-condições, dados, passos, resultado esperado, prioridade e status NOT_RUN.
-7. Crie qa/traceability/exploration.md relacionando telas, funcionalidades e casos. Registre páginas inacessíveis e fluxos não explorados.
-8. Crie qa/automation-candidates.md com os casos recomendados para automação Copado CRT, priorizados por risco e frequência de uso.
+1. Analyze the repository structure and reuse its conventions.
+2. Use the available browser tools to access the URL. If authentication is required, let me log in without asking for my password in chat. If no browser tool is available, report the required capability.
+3. Explore the screens, menus, forms, and journeys accessible to the authenticated user. Create an inventory of observed features.
+4. Base tests on observed behavior and requirements found in the project. Identify inferred rules as assumptions to confirm.
+5. Generate positive, negative, boundary, validation, and navigation cases. For permissions, cover only available personas and record the others as gaps.
+6. Save cases in qa/manual/, organized by feature, including ID, objective, preconditions, data, steps, expected result, priority, and NOT_RUN status.
+7. Create qa/traceability/exploration.md linking screens, features, and cases. Record inaccessible pages and unexplored flows.
+8. Create qa/automation-candidates.md with cases recommended for Copado CRT automation, prioritized by risk and frequency of use.
 
-Explore sem alterar dados existentes. Faça operações de escrita somente em sandbox de testes autorizada, usando dados sintéticos identificáveis. Não exclua registros existentes, envie comunicações ou dispare pagamentos e integrações externas.
+Explore without changing existing data. Perform write operations only in an authorized test sandbox, using identifiable synthetic data. Do not delete existing records, send communications, or trigger payments or external integrations.
 
-Não invente funcionalidades nem declare casos aprovados apenas por tê-los gerado. Continue até salvar os arquivos e apresente um resumo da cobertura e dos bloqueios.
+Do not invent features or mark cases as passed merely because they have been generated. Continue until the files are saved and present a summary of coverage and blockers.
 ```
-
-
