@@ -70,6 +70,20 @@ inspection. The HTML report and log are written to `results/`.
 
 ## Docker and CI
 
+The Docker image is published on [Docker Hub](https://hub.docker.com/r/williamjablonski/robot-salesforce-tests)
+as `williamjablonski/robot-salesforce-tests:latest`.
+
+Download the image:
+
+```bash
+docker pull williamjablonski/robot-salesforce-tests:latest
+```
+
+The published image includes the public dependencies and browser setup. Running
+the full suite also requires Salesforce sandbox configuration and your
+organization's approved private QForce library. The existing QWeb placeholder
+must be adapted to a real application before the full suite can pass.
+
 See [readme-docker.md](readme-docker.md) for Docker setup, commands to run all
 suites or individual tests, Salesforce/QForce prerequisites, and the GitHub
 Actions pipeline configuration.
