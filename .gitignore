@@ -2,3 +2,7 @@
 /.venv-1/
 /.venv-2/
 /results/
+/.env
+/.env.*
+!/.env.example
+/docker/wheels/*.whl

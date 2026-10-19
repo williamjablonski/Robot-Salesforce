@@ -1,0 +1,88 @@
+name: Docker Robot tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run all suites against the configured Salesforce sandbox
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare report directory
+        run: mkdir -p results && chmod 777 results
+      - name: Build image
+        run: docker compose build
+      - name: Run local smoke test
+        run: docker compose run --rm -T tests tests/smoke.robot
+      - name: Save reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-smoke-${{ github.run_attempt }}
+          path: results/
+          if-no-files-found: warn
+          retention-days: 7
+
+  full-suite:
+    needs: smoke
+    # Salesforce writes run on trusted pushes or an explicit manual dispatch only.
+    if: >-
+      (github.event_name == 'push' && vars.RUN_SALESFORCE_TESTS == 'true') ||
+      (github.event_name == 'workflow_dispatch' && inputs.full_suite)
+    runs-on: ubuntu-latest
+    environment: salesforce-qa
+    timeout-minutes: 45
+    env:
+      SF_LOGIN_URL: ${{ vars.SF_LOGIN_URL }}
+      SF_LIGHTNING_URL: ${{ vars.SF_LIGHTNING_URL }}
+      SF_USERNAME: ${{ secrets.SF_USERNAME }}
+      SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check configuration and install approved QForce wheel into build context
+        env:
+          QFORCE_WHEEL_URL: ${{ secrets.QFORCE_WHEEL_URL }}
+          QFORCE_WHEEL_FILENAME: ${{ vars.QFORCE_WHEEL_FILENAME }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SF_LOGIN_URL SF_LIGHTNING_URL SF_USERNAME SF_PASSWORD QFORCE_WHEEL_URL QFORCE_WHEEL_FILENAME; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing configuration: $name"
+              exit 1
+            fi
+          done
+          if [[ ! "$QFORCE_WHEEL_FILENAME" =~ ^[a-zA-Z0-9_.+-]+\.whl$ ]]; then
+            echo '::error::QFORCE_WHEEL_FILENAME must be a wheel filename without a path'
+            exit 1
+          fi
+          curl --fail --silent --show-error --location --proto "=https" --proto-redir "=https" \
+            "$QFORCE_WHEEL_URL" --output "docker/wheels/$QFORCE_WHEEL_FILENAME"
+          mkdir -p results
+          chmod 777 results
+      - name: Build image with QForce
+        run: docker compose build
+      - name: Verify QForce import
+        run: docker compose run --rm -T --entrypoint python tests -c 'import QForce'
+      - name: Execute every suite
+        run: docker compose run --rm -T tests tests/
+      - name: Save reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-full-suite-${{ github.run_attempt }}
+          path: results/
+          if-no-files-found: warn
+          retention-days: 3

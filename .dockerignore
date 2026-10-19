@@ -1,0 +1,9 @@
+**
+!requirements.txt
+!tests/
+!tests/**
+!docker/
+!docker/entrypoint.sh
+!docker/wheels/
+!docker/wheels/*.whl
+!docker/wheels/.gitkeep

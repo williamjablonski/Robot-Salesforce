@@ -67,3 +67,9 @@ Both Salesforce examples create uniquely named Account records; the XPath suite
 also edits an Account and checks the required-name validation. Use a
 sandbox/test org: records created by these tests remain in Salesforce for
 inspection. The HTML report and log are written to `results/`.
+
+## Docker and CI
+
+See [readme-docker.md](readme-docker.md) for Docker setup, commands to run all
+suites or individual tests, Salesforce/QForce prerequisites, and the GitHub
+Actions pipeline configuration.
