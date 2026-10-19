@@ -54,6 +54,24 @@ Evaluate the following as applicable to the scope:
 
 For relevant rules, include positive, negative, boundary, and permissions scenarios. Do not expand a simple change to the entire org. State exclusions and gaps.
 
+Clarify ambiguous acceptance criteria with the product owner or developers before assigning an expected result. Distinguish object/field permissions (profiles and permission sets) from record access (sharing and role hierarchy); test both with the appropriate personas. For Flows, cover trigger conditions, decision branches, updates, error paths, and the final persisted result.
+
+### Financial workflows, when in scope
+
+Treat loan and credit examples from preparation material as candidate scenarios, not evidence that the target organization implements those processes. Confirm business rules and applicable requirements with project sources before using them as test oracles.
+
+- Cover application creation, eligibility boundaries, approval/rejection paths and reasons, required documents, and permitted status transitions when implemented.
+- Validate financial calculations against approved formulas and expected values, including precision, rounding, currency, and boundary inputs where specified. Do not infer lending thresholds or regulatory obligations.
+- Prioritize incorrect amounts, unauthorized access, inconsistent data, duplicate transactions, and integration failures by business impact.
+- Verify that sensitive fields and decision records are accessible only to authorized personas, and that required audit information is recorded without exposing customer data in evidence.
+
+### API and data reconciliation
+
+- Derive endpoints and expected HTTP status codes from the actual contract. Check authentication/authorization, request parameters, response schemas, field mapping, business errors, and unavailable dependencies.
+- Track a synthetic record by its ID or correlation identifier across Salesforce and the external test system. Compare mapped values and verify duplicate handling, retries, and idempotency.
+- For eventual consistency, poll for the documented final state within a bounded interval; distinguish pending synchronization from a confirmed mismatch.
+- Use SOQL or documented Salesforce APIs to verify Salesforce data. Use SQL for authorized external databases when available; prefer read-only queries for reconciliation and duplicate detection. Do not assume direct SQL access to Salesforce's backing database.
+
 ## 4. Create and execute manual tests
 
 Follow the existing structure; if there is no standard, create `qa/manual/<feature>.md`:
@@ -68,7 +86,9 @@ Execute manually only when a tool/browser is available and access is authorized.
 
 ## 5. Select automation
 
-Prioritize smoke tests, frequent regression, critical rules, and repeatable scenarios with objective assertions. Keep exploration and subjective visual assessment as manual activities when appropriate. Map `AC -> MAN -> AUTO`, allowing multiple tests and explicit gaps.
+Prioritize smoke tests, frequent regression, critical rules, and repeatable scenarios with objective assertions. Consider execution frequency, stability, maintenance cost, and expected return when choosing automation candidates. Keep exploration and subjective visual assessment as manual activities when appropriate. Map `AC -> MAN -> AUTO`, allowing multiple tests and explicit gaps.
+
+Distinguish smoke checks for critical build functionality, sanity checks for a specific change or fix, and regression checks for impacted existing behavior. Select the smallest meaningful set for the change.
 
 Choose UI for user behavior and API for suitable contracts/validations. Do not replace a UI check required by a requirement with an API check.
 
@@ -82,7 +102,7 @@ Choose UI for user behavior and API for suitable contracts/validations. Do not r
 - Do not invent Salesforce keywords, CRT commands, SDKs, or execution endpoints.
 - If a private library is missing, record a blocker. Do not install a similarly named package or silently replace a dependency.
 - Do not mix Playwright/Selenium APIs with CRT keywords as if they were interchangeable.
-- Use Playwright/JavaScript/TypeScript only when requested or specified by the architecture; keep their dependencies and execution clearly separate.
+- Use Playwright/JavaScript/TypeScript only when requested or specified by the architecture; keep their dependencies and execution clearly separate. In that mode, reuse page objects and fixtures, prefer accessible locators and condition-based assertions, and scope ambiguous matches rather than masking them with an arbitrary first match.
 
 ### Organization
 
@@ -141,13 +161,19 @@ Do not claim full or percentage coverage without a defined scope and methodology
 
 Classify the cause as product, automation, data, environment, or inconclusive. Use logs/reproduction before reaching a conclusion. Record expected versus observed behavior, impact, evidence, environment, steps, and justified severity.
 
+For intermittent failures, compare runs for synchronization, shared data, order dependencies, environment differences, and locator ambiguity. Use bounded repeat runs when needed to verify a suspected stability fix; retain the failure history.
+
 Apply the minimal fix to the cause. Do not remove assertions, increase timeouts indiscriminately, or use skips or retries to hide failures. Diagnostic retries must be bounded and preserve the original result. An AI-suggested locator change must confirm the same element and requirement.
 
 ## 9. CI/CD, AI, and environment
 
 Reuse workflows. Create/change a pipeline only when requested or necessary for the scope; confirm the CRT execution mechanism before configuring it. Use CI secrets, timeouts, failure criteria, and sanitized evidence retention. Do not trigger deployments or approve releases merely because tests have been generated.
 
-Review code/scenarios produced by Copilot. Use Copado AI features only when available and documented; do not treat them as enabled by this skill.
+When changing a pipeline, align smoke and affected regression checks with the existing release stages and failure gates. A confirmed critical defect should be reported with business risk and a recommendation to block release or follow the established risk-acceptance process. Do not approve, block, or deploy a release through external tools without authorization.
+
+Review code/scenarios produced by Copilot. Use Copado AI features only when available and documented; do not treat them as enabled by this skill. Provide AI tools with sanitized stories, acceptance criteria, workflow context, actual library versions, required assertions, and the desired output. Review suggested tests and self-healed locators against the original requirement and the same intended element before accepting changes; apply the same review standards as for manually authored tests.
+
+When asked to assess AI-assisted testing benefits, compare a defined baseline with measured test-authoring time, maintenance effort, execution stability, defect detection, meaningful requirement coverage, and correction effort for AI-generated output. State the observation period and sample; do not invent productivity gains or treat test count as coverage.
 
 Never store passwords, tokens, cookies, storage state, personal data, or sensitive screenshots in code, prompts, reports, or commits. Use an approved secret store. Respect SSO/MFA without bypassing them. Execute write tests in an authorized sandbox/UAT environment; do not infer authorization for destructive tests in production.
 
