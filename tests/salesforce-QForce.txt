@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation       Example end-to-end Salesforce Lightning UI tests using QForce.
-Library             QForce
+#Library             QForce
 Library             String
 Suite Setup         Open Salesforce Session
 Suite Teardown      CloseBrowser
