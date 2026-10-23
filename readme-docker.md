@@ -16,7 +16,7 @@ with a virtual display. No local Python installation is required.
   and any private dependency wheels. This library is not installed from a
   similarly named public package. Follow the vendor's licensing requirements.
 
-## Configure and build
+## Configure and use the published image
 
 Run from the repository root:
 
@@ -31,23 +31,27 @@ single-quoted values if a password contains `$` or `#`. The file is ignored by
 Git and excluded from the image. Shell environment variables take precedence
 over `.env`; do not print the rendered Compose configuration with real secrets.
 
-Place the approved QForce wheel and its private dependency wheels in
-`docker/wheels/`, keeping their original filenames. Wheels are ignored by Git.
-They are installed during the build, so the resulting local image contains the
-private distribution; distribute that image only through approved channels.
-If no wheels are supplied, smoke, SeleniumLibrary, and QWeb remain available,
-but the QForce suite cannot run.
+```bash
+docker compose pull tests
+```
+
+Compose uses the published `williamjablonski/robot-salesforce-tests:latest`
+image and pulls it when running the test service. Normal test runs do not build
+the image. The result directory is writable by the container's non-root user.
+On a shared host, replace the example's broad directory permissions with
+appropriate ACLs for container UID 1000.
+
+To build a custom image locally (for example, to include your organization's
+approved QForce wheel), place the wheel and its private dependencies in
+`docker/wheels/`, then explicitly run:
 
 ```bash
-docker compose build
+docker compose build tests
 docker compose run --rm -T --entrypoint python tests -c 'import QForce'
 ```
 
-The import check is needed only for QForce. Rebuild after changing tests,
-requirements, or wheels: test files are copied into the image during the build.
-The results directory is writable by the container's non-root user. On a shared
-host, replace the example's broad directory permissions with appropriate ACLs
-for container UID 1000.
+The import check is needed only for QForce. Test files are copied into the
+image at build time, so rebuild only when intentionally creating a custom image.
 
 ## Run manually from the terminal
 
@@ -65,6 +69,12 @@ Run individual suites:
 ```bash
 # Local installation check; no Salesforce credentials needed.
 docker compose run --rm -T tests tests/smoke.robot
+
+# Salesforce login smoke test (requires SF_USERNAME and SF_PASSWORD in .env).
+docker compose run --rm -T tests tests/salesforce-login-success.robot
+
+# Create a Salesforce Contact (requires SF_USERNAME and SF_PASSWORD in .env).
+docker compose run --rm -T tests tests/salesforce-contacts.robot
 
 # Salesforce through SeleniumLibrary and XPath.
 docker compose run --rm -T tests tests/salesforce-lightning-xpath.robot
@@ -93,6 +103,13 @@ suite, use:
 ```bash
 docker compose run --rm -T tests --include smoke tests/salesforce-lightning-xpath.robot
 ```
+
+The login smoke test uses `SF_LOGIN_URL` (default:
+`https://q4sureplatform.my.salesforce.com`) and requires `SF_USERNAME` and
+`SF_PASSWORD`. Keep credentials only in the ignored local `.env` file or an
+approved secret manager; do not commit them or put them in the Docker image.
+The browser runs headlessly inside the container's Xvfb display, and reports
+are written to `results/`.
 
 Validate test structure without executing browser actions:
 
