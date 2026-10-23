@@ -18,4 +18,7 @@ services:
     volumes:
       - ./results:/app/results
       - ./tests:/app/tests:ro
+      - ./libraries:/app/libraries:ro
+      - ./resources:/app/resources:ro
+      - ./data:/app/data:ro
     command: ["tests/"]

@@ -33,6 +33,9 @@ RUN if find /opt/wheels -name '*.whl' -print -quit | grep -q .; then \
     fi
 
 COPY tests/ /app/tests/
+COPY libraries/ /app/libraries/
+COPY resources/ /app/resources/
+COPY data/ /app/data/
 COPY docker/entrypoint.sh /usr/local/bin/run-tests
 RUN chmod +x /usr/local/bin/run-tests && mkdir /app/results \
     && chown -R robot:robot /app /opt/venv

@@ -2,6 +2,12 @@
 !requirements.txt
 !tests/
 !tests/**
+!libraries/
+!libraries/**
+!resources/
+!resources/**
+!data/
+!data/**
 !docker/
 !docker/entrypoint.sh
 !docker/wheels/

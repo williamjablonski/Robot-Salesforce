@@ -1,8 +1,10 @@
 *** Settings ***
-Documentation       Salesforce Account creation test using Robot Framework and SeleniumLibrary. XPath locators follow the existing suite and need confirmation against the target org DOM.
+Documentation       Salesforce Account creation test using label-based Python keywords and SeleniumLibrary. Confirm field labels against the target org DOM.
 Library             SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    run_on_failure=Capture Page Screenshot
 Library             OperatingSystem
 Library             String
+Resource            ../resources/label-ui.resource
+Resource            ../data/account-scenarios.resource
 Suite Setup         Login To Salesforce And Open Accounts
 Suite Teardown      Close All Browsers
 
@@ -12,13 +14,7 @@ ${BROWSER}                      %{SF_BROWSER=chrome}
 ${XPATH_USERNAME}               xpath=//input[@id='username']
 ${XPATH_PASSWORD}               xpath=//input[@id='password']
 ${XPATH_LOGIN_BUTTON}           xpath=//input[@id='Login']
-${XPATH_NEW_ACCOUNT}            xpath=//button[@title='New' or normalize-space(.)='New'] | //a[@title='New']
 ${XPATH_ACCOUNT_NAME_INPUT}     xpath=//input[@name='Name' or @aria-label='Account Name']
-${XPATH_PHONE_INPUT}            xpath=//input[@name='Phone' or @aria-label='Phone']
-${XPATH_WEBSITE_INPUT}          xpath=//input[@name='Website' or @aria-label='Website']
-${XPATH_DESCRIPTION_INPUT}      xpath=//textarea[@name='Description' or @aria-label='Description']
-${XPATH_SAVE_BUTTON}            xpath=//button[@name='SaveEdit' or @title='Save' or normalize-space(.)='Save']
-${XPATH_DETAILS_TAB}            xpath=//*[@role='tab' and normalize-space(.)='Details']
 
 *** Test Cases ***
 Criar Conta E Validar Dados
@@ -26,22 +22,22 @@ Criar Conta E Validar Dados
     [Tags]    salesforce    lightning    account    smoke
 
     ${suffix}=          Generate Random String    8    [LOWER][NUMBERS]
-    ${account_name}=    Set Variable    Robot Account ${suffix}
+    ${account_name}=    Set Variable    ${ACCOUNT_TEST_NAME_PREFIX} ${suffix}
     ${phone_digits}=    Generate Random String    8    [NUMBERS]
-    ${phone}=           Set Variable    555${phone_digits}
-    ${website}=         Set Variable    https://example.com/robot-account-${suffix}
-    ${description}=     Set Variable    Created by Robot Framework test ${suffix}
+    ${phone}=           Set Variable    ${ACCOUNT_TEST_PHONE_PREFIX}${phone_digits}
+    ${website}=         Set Variable    ${ACCOUNT_TEST_WEBSITE_PREFIX}${suffix}
+    ${description}=     Set Variable    ${ACCOUNT_TEST_DESCRIPTION_PREFIX} ${suffix}
 
     Open New Account Form
-    Input Text    ${XPATH_ACCOUNT_NAME_INPUT}    ${account_name}
-    Input Text    ${XPATH_PHONE_INPUT}    ${phone}
-    Input Text    ${XPATH_WEBSITE_INPUT}    ${website}
-    Input Text    ${XPATH_DESCRIPTION_INPUT}    ${description}
-    Click Save
+    LabelUI.Type Text    ${ACCOUNT_NAME_LABEL}    ${account_name}
+    LabelUI.Type Text    ${ACCOUNT_PHONE_LABEL}    ${phone}
+    LabelUI.Type Text    ${ACCOUNT_WEBSITE_LABEL}    ${website}
+    LabelUI.Type Text    ${ACCOUNT_DESCRIPTION_LABEL}    ${description}
+    LabelUI.Click Text    Save
     Wait Until Page Contains    ${account_name}    timeout=30 seconds
 
     Open Account Details
-    Page Should Contain    ${account_name}
+    LabelUI.Verify Text    ${account_name}
     Page Should Contain    ${phone}
     Page Should Contain    ${website}
     Page Should Contain    ${description}
@@ -64,16 +60,11 @@ Login To Salesforce And Open Accounts
     ${current_url}=    Get Location
     ${url_parts}=    Split String    ${current_url}    /lightning/
     Go To    ${url_parts}[0]/lightning/o/Account/list
-    Wait Until Element Is Visible    ${XPATH_NEW_ACCOUNT}    timeout=60 seconds
+    Wait Until Page Contains    New    timeout=60 seconds
 
 Open New Account Form
-    Click Element    ${XPATH_NEW_ACCOUNT}
+    LabelUI.Click Text    New
     Wait Until Element Is Visible    ${XPATH_ACCOUNT_NAME_INPUT}
 
-Click Save
-    Wait Until Element Is Enabled    ${XPATH_SAVE_BUTTON}
-    Click Element    ${XPATH_SAVE_BUTTON}
-
 Open Account Details
-    Wait Until Element Is Visible    ${XPATH_DETAILS_TAB}
-    Click Element    ${XPATH_DETAILS_TAB}
+    LabelUI.Click Text    Details

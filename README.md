@@ -1,9 +1,9 @@
 # Robot Framework and Salesforce Lightning examples
 
-This project contains a Robot Framework smoke test, a Salesforce Lightning
-example using QForce, and a separate SeleniumLibrary suite with XPath locators
-and no custom Python code. Both Salesforce examples can be adapted to a Copado
-test execution environment.
+This project contains Robot Framework Salesforce Lightning suites using
+SeleniumLibrary and reusable Python label-based keywords. QForce examples and
+the Selenium/XPath references can be adapted to a Copado test execution
+environment.
 
 ## Setup
 
@@ -18,8 +18,34 @@ interpreter built with Tk support (`tkinter`). The QForce suite also requires
 the QForce library and a browser supported by the target Copado runner.
 Install/configure QForce through the distribution approved for your
 organization; it is not available from the public package index used by pip.
-The XPath suite uses SeleniumLibrary, also included in `requirements.txt`, and
-requires a browser and compatible WebDriver in the local or Copado runner.
+The UI suites use SeleniumLibrary, also included in `requirements.txt`, and
+require a browser and compatible WebDriver in the local or Copado runner.
+
+## Label-based Python Robot keywords
+
+The reusable library in `libraries/label_ui_keywords.py` provides `Type Text`,
+`Click Text`, and `Verify Text` by reusing the active SeleniumLibrary session.
+Import [label-ui.resource](resources/label-ui.resource) in a suite:
+
+```robot
+*** Settings ***
+Library     SeleniumLibrary
+Resource    ../resources/label-ui.resource
+
+*** Test Cases ***
+Fill And Submit A Form
+    LabelUI.Type Text      Account Name    Example Account
+    LabelUI.Click Text     Save
+    LabelUI.Verify Text    Example Account
+```
+
+`Type Text` resolves a visible HTML `label` association or exact `aria-label`;
+it fails if the label is missing, ambiguous, or does not identify a text input.
+`Click Text` targets one visible button, link, supported ARIA control, or label
+by exact visible text/accessibility label. `Verify Text` waits for exact
+normalized text to become visible. The `LabelUI` namespace avoids keyword-name
+collisions with QWeb. Confirm labels and accessible names in the target DOM;
+the helper does not validate Salesforce org markup by itself.
 
 ## Salesforce test configuration
 

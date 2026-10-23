@@ -36,12 +36,12 @@ docker compose pull tests
 ```
 
 Compose uses the published `williamjablonski/robot-salesforce-tests:latest`
-image and pulls it when running the test service. It mounts the local `tests/`
-directory read-only, so newly authored or modified Robot suites are available
-immediately without rebuilding or publishing the image. The result directory
-is writable by the container's non-root user. On a shared host, replace the
-example's broad directory permissions with appropriate ACLs for container UID
-1000.
+image and pulls it when running the test service. It mounts local `tests/`,
+`libraries/`, `resources/`, and `data/` read-only, so newly authored or modified
+suites, Python keywords, resources, and datasets are available immediately
+without rebuilding or publishing the image. The result directory is writable
+by the container's non-root user. On a shared host, replace the example's broad
+directory permissions with appropriate ACLs for container UID 1000.
 
 The published image does not include the private QForce library. If a QForce
 suite is needed, obtain the organization's approved Linux-compatible wheel and
