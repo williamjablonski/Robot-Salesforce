@@ -8,7 +8,7 @@ with a virtual display. No local Python installation is required.
 
 - Docker Engine or Docker Desktop running, with Docker Compose v2.
 - Internet access during the build to Debian repositories and the Python package index.
-- For Salesforce: an authorized sandbox, a dedicated test user, and network access
+- For Salesforce: an authorized target org, a dedicated test user, and network access
   from the container/CI runner to the org. The existing login examples require
   an authentication flow that completes without interactive SSO/MFA; adapt them
   to your organization's approved flow when necessary.
@@ -26,10 +26,22 @@ mkdir -p reports
 chmod 777 reports
 ```
 
-Edit `.env` locally with the actual sandbox URLs, username, and password. Use
-single-quoted values if a password contains `$` or `#`. The file is ignored by
-Git and excluded from the image. Shell environment variables take precedence
-over `.env`; do not print the rendered Compose configuration with real secrets.
+Edit `.env` locally with the target org URLs, environment, username, and
+password. Set `SF_TARGET_ENVIRONMENT=sandbox` for a sandbox, or set it to
+`production` and explicitly set `SF_ALLOW_PRODUCTION_WRITES=true` to permit
+production runs. Production suites create persistent records and may trigger
+org automation; use only after org-owner approval and with a dedicated test
+user. For an approved production run, the relevant `.env` settings are:
+
+```dotenv
+SF_TARGET_ENVIRONMENT=production
+SF_ALLOW_PRODUCTION_WRITES=true
+```
+
+Use single-quoted values if a password contains `$` or `#`. The file is ignored
+by Git and excluded from the image. Shell environment variables take
+precedence over `.env`; do not print the rendered Compose configuration with
+real secrets.
 
 ```bash
 docker compose pull tests
@@ -112,10 +124,13 @@ docker compose run --rm -T tests --test 'Criar Conta E Validar Dados' --outputdi
 The `smoke` tag selects Salesforce tests. A dry run does not execute suite
 setup, authenticate, validate the live Salesforce DOM, or create records.
 
-The login smoke test uses `SF_LOGIN_URL` (default:
-`https://q4sureplatform.my.salesforce.com`) and requires `SF_USERNAME` and
-`SF_PASSWORD`. Keep credentials only in the ignored local `.env` file or an
-approved secret manager; do not commit them or put them in the Docker image.
+The login smoke test uses `SF_LOGIN_URL` and requires `SF_USERNAME`,
+`SF_PASSWORD`, and `SF_TARGET_ENVIRONMENT`. Production requires the explicit
+`SF_ALLOW_PRODUCTION_WRITES=true` opt-in. Keep credentials only in the ignored
+local `.env` file or an approved secret manager; do not commit them or put them
+in the Docker image. GitHub Copilot can start the local command but does not
+itself grant Salesforce access; Docker receives credentials from the local
+environment or `.env`.
 The browser runs headlessly inside the container's Xvfb display, and reports
 are written to `reports/`.
 

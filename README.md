@@ -62,14 +62,20 @@ environment) before running the Salesforce suite:
 
 | Variable | Purpose |
 | --- | --- |
-| `SF_LOGIN_URL` | Salesforce login URL; use `https://test.salesforce.com` for a sandbox. |
+| `SF_LOGIN_URL` | Login URL of the target Salesforce org. |
 | `SF_LIGHTNING_URL` | Lightning domain for the target org, e.g. `https://my-domain.lightning.force.com`. |
+| `SF_TARGET_ENVIRONMENT` | Required: `sandbox` or `production`. |
+| `SF_ALLOW_PRODUCTION_WRITES` | Must be `true` to run suites that create records against production. Defaults to `false`. |
 | `SF_USERNAME` | Dedicated Salesforce test user. |
 | `SF_PASSWORD` | Test user's password; store it as a secret/private variable. |
 
 The example assumes that login completes without an interactive MFA prompt. Add
 your organization's approved SSO/MFA handling before using it in an org that
-requires an additional login step.
+requires an additional login step. The UI suites create Salesforce records that
+remain in the org; production execution requires explicit approval and the
+production-write opt-in above. GitHub Copilot does not provide Salesforce
+authentication: configure credentials only in the local ignored `.env` file or
+an approved secret manager.
 
 ## Run
 
@@ -103,10 +109,10 @@ and `SF_PASSWORD` as described above. The SeleniumLibrary example also accepts
 `SF_BROWSER` (defaults to `chrome`). Keep credentials in secret/private
 variables. Complete any org-specific SSO/MFA flow before relying on the session.
 
-Both Salesforce examples create uniquely named Account records; the XPath suite
-also edits an Account and checks the required-name validation. Use a
-sandbox/test org: records created by these tests remain in Salesforce for
-inspection. The HTML report and log are written to `reports/`.
+The Salesforce suites create uniquely named records in the configured org;
+records are not automatically deleted. Use a dedicated test user and review
+production automations and side effects before enabling production writes. The
+HTML report and log are written to `reports/`.
 
 ## Docker and CI
 
@@ -120,7 +126,7 @@ docker pull williamjablonski/robot-salesforce-tests:latest
 ```
 
 The published image includes the public dependencies and browser setup. Running
-the full suite also requires Salesforce sandbox configuration and your
+the full suite also requires Salesforce target-org configuration and your
 organization's approved private QForce library. The existing QWeb placeholder
 must be adapted to a real application before the full suite can pass.
 

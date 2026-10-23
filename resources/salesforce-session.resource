@@ -8,26 +8,45 @@ Resource    label-ui.resource
 *** Variables ***
 ${LOGIN_URL}    %{SF_LOGIN_URL=https://q4sureplatform.my.salesforce.com}
 ${BROWSER}    %{SF_BROWSER=chrome}
+${TARGET_ENVIRONMENT}    %{SF_TARGET_ENVIRONMENT=}
+${ALLOW_PRODUCTION_WRITES}    %{SF_ALLOW_PRODUCTION_WRITES=false}
 ${XPATH_USERNAME}    xpath=//input[@id='username']
 ${XPATH_PASSWORD}    xpath=//input[@id='password']
 ${XPATH_LOGIN_BUTTON}    xpath=//input[@id='Login']
 
 *** Keywords ***
 Open Salesforce Login Page
+    Validate Salesforce Target Environment
     Open Browser    ${LOGIN_URL}    ${BROWSER}
     Set Window Size    1920    1080
 
-Login To Salesforce
-    ${username}=    Get Environment Variable    SF_USERNAME
-    ${password}=    Get Environment Variable    SF_PASSWORD
-    Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
-    Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
+Validate Salesforce Target Environment
+    ${target}=    Convert To Lower Case    ${TARGET_ENVIRONMENT}
+    IF    $target == "production"
+        ${production_writes}=    Convert To Lower Case    ${ALLOW_PRODUCTION_WRITES}
+        Should Be Equal    ${production_writes}    true    Production runs create persistent Salesforce records. Set SF_ALLOW_PRODUCTION_WRITES=true only after explicitly approving these writes.
+    ELSE IF    $target != "sandbox"
+        Fail    Set SF_TARGET_ENVIRONMENT to either sandbox or production.
+    END
 
-    Wait Until Element Is Visible    ${XPATH_USERNAME}
-    Input Text    ${XPATH_USERNAME}    ${username}
-    Input Password    ${XPATH_PASSWORD}    ${password}
-    Click Element    ${XPATH_LOGIN_BUTTON}
-    Wait Until Location Contains    /lightning/    timeout=60 seconds
+Login To Salesforce
+    ${previous_log_level}=    Set Log Level    NONE
+    TRY
+        ${username}=    Get Environment Variable    SF_USERNAME
+        ${password}=    Get Environment Variable    SF_PASSWORD
+        Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
+        Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
+
+        Wait Until Element Is Visible    ${XPATH_USERNAME}
+        Input Text    ${XPATH_USERNAME}    ${username}
+        Click Element    ${XPATH_LOGIN_BUTTON}
+        Wait Until Element Is Visible    ${XPATH_PASSWORD}
+        Input Password    ${XPATH_PASSWORD}    ${password}
+        Click Element    ${XPATH_LOGIN_BUTTON}
+        Wait Until Location Contains    /lightning/    timeout=60 seconds
+    FINALLY
+        Set Log Level    ${previous_log_level}
+    END
 
 Open Salesforce Object List
     [Arguments]    ${object_api_name}

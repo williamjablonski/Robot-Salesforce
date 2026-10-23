@@ -7,6 +7,8 @@ services:
     environment:
       SF_LOGIN_URL: ${SF_LOGIN_URL:-https://q4sureplatform.my.salesforce.com}
       SF_LIGHTNING_URL: ${SF_LIGHTNING_URL:-https://YOUR-DOMAIN.lightning.force.com}
+      SF_TARGET_ENVIRONMENT: ${SF_TARGET_ENVIRONMENT:-}
+      SF_ALLOW_PRODUCTION_WRITES: ${SF_ALLOW_PRODUCTION_WRITES:-false}
       SF_USERNAME: ${SF_USERNAME:-}
       SF_PASSWORD: ${SF_PASSWORD:-}
       SF_BROWSER: ${SF_BROWSER:-chrome}
