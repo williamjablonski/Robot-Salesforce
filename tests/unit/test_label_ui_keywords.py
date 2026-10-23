@@ -68,6 +68,16 @@ class LabelUIKeywordsTests(unittest.TestCase):
 
         self.selenium.click_element.assert_called_once_with(button)
 
+    def test_click_text_supports_accessibly_labeled_comboboxes(self):
+        combobox = Mock(id="stage-picker", is_displayed=Mock(return_value=True))
+        self.selenium.get_webelements.return_value = [combobox]
+
+        self.library.click_text("Stage")
+
+        locator = self.selenium.get_webelements.call_args.args[0]
+        self.assertIn("//*[@role = 'combobox' and", locator)
+        self.selenium.click_element.assert_called_once_with(combobox)
+
     def test_verify_text_fails_if_matching_text_is_not_visible(self):
         text_element = Mock(is_displayed=Mock(return_value=False))
         self.selenium.get_webelements.return_value = [text_element]

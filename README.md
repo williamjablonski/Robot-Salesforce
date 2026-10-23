@@ -25,7 +25,15 @@ require a browser and compatible WebDriver in the local or Copado runner.
 
 The reusable library in `libraries/label_ui_keywords.py` provides `Type Text`,
 `Click Text`, and `Verify Text` by reusing the active SeleniumLibrary session.
-Import [label-ui.resource](resources/label-ui.resource) in a suite:
+Every executable Salesforce `.robot` suite imports the shared
+[salesforce-session.resource](resources/salesforce-session.resource), which
+imports the label-based library and centralizes login/object-list setup. Each
+suite also imports its business-data resource from `data/`. Files ending in
+`.txt` are reference examples and are intentionally not affected by this
+pattern.
+
+Import [label-ui.resource](resources/label-ui.resource) directly only when a
+suite does not need the shared Salesforce session:
 
 ```robot
 *** Settings ***

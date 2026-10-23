@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Synthetic Account creation data. Each run appends a unique suffix; created records are retained for authorized sandbox inspection.
+Documentation    Purpose: create a synthetic Account. Expected: the saved record shows the generated name, phone, website, and description. The run suffix makes these values unique; records remain for authorized sandbox inspection. No acceptance-criteria ID was supplied.
 
 *** Variables ***
 ${ACCOUNT_NAME_LABEL}                 Account Name

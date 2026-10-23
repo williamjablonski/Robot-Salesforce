@@ -1,20 +1,9 @@
 *** Settings ***
-Documentation       Salesforce Account creation test using label-based Python keywords and SeleniumLibrary. Confirm field labels against the target org DOM.
-Library             SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    run_on_failure=Capture Page Screenshot
-Library             OperatingSystem
-Library             String
-Resource            ../resources/label-ui.resource
+Documentation       Salesforce Account creation test using shared session and label-based Python keywords. Confirm field labels against the target org DOM.
+Resource            ../resources/salesforce-session.resource
 Resource            ../data/account-scenarios.resource
-Suite Setup         Login To Salesforce And Open Accounts
+Suite Setup         Open Salesforce Object List    Account
 Suite Teardown      Close All Browsers
-
-*** Variables ***
-${LOGIN_URL}                    %{SF_LOGIN_URL=https://q4sureplatform.my.salesforce.com}
-${BROWSER}                      %{SF_BROWSER=chrome}
-${XPATH_USERNAME}               xpath=//input[@id='username']
-${XPATH_PASSWORD}               xpath=//input[@id='password']
-${XPATH_LOGIN_BUTTON}           xpath=//input[@id='Login']
-${XPATH_ACCOUNT_NAME_INPUT}     xpath=//input[@name='Name' or @aria-label='Account Name']
 
 *** Test Cases ***
 Criar Conta E Validar Dados
@@ -43,28 +32,9 @@ Criar Conta E Validar Dados
     Page Should Contain    ${description}
 
 *** Keywords ***
-Login To Salesforce And Open Accounts
-    ${username}=    Get Environment Variable    SF_USERNAME
-    ${password}=    Get Environment Variable    SF_PASSWORD
-    Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
-    Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
-
-    Open Browser    ${LOGIN_URL}    ${BROWSER}
-    Maximize Browser Window
-    Wait Until Element Is Visible    ${XPATH_USERNAME}
-    Input Text    ${XPATH_USERNAME}    ${username}
-    Input Password    ${XPATH_PASSWORD}    ${password}
-    Click Element    ${XPATH_LOGIN_BUTTON}
-    Wait Until Location Contains    /lightning/    timeout=60 seconds
-
-    ${current_url}=    Get Location
-    ${url_parts}=    Split String    ${current_url}    /lightning/
-    Go To    ${url_parts}[0]/lightning/o/Account/list
-    Wait Until Page Contains    New    timeout=60 seconds
-
 Open New Account Form
     LabelUI.Click Text    New
-    Wait Until Element Is Visible    ${XPATH_ACCOUNT_NAME_INPUT}
+    Wait Until Page Contains    ${ACCOUNT_NAME_LABEL}
 
 Open Account Details
     LabelUI.Click Text    Details

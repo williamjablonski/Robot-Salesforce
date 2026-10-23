@@ -1,0 +1,40 @@
+*** Settings ***
+Documentation    Shared SeleniumLibrary session setup for executable Salesforce UI suites.
+Library    SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    run_on_failure=Capture Page Screenshot
+Library    OperatingSystem
+Library    String
+Resource    label-ui.resource
+
+*** Variables ***
+${LOGIN_URL}    %{SF_LOGIN_URL=https://q4sureplatform.my.salesforce.com}
+${BROWSER}    %{SF_BROWSER=chrome}
+${XPATH_USERNAME}    xpath=//input[@id='username']
+${XPATH_PASSWORD}    xpath=//input[@id='password']
+${XPATH_LOGIN_BUTTON}    xpath=//input[@id='Login']
+
+*** Keywords ***
+Open Salesforce Login Page
+    Open Browser    ${LOGIN_URL}    ${BROWSER}
+    Maximize Browser Window
+
+Login To Salesforce
+    ${username}=    Get Environment Variable    SF_USERNAME
+    ${password}=    Get Environment Variable    SF_PASSWORD
+    Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
+    Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
+
+    Wait Until Element Is Visible    ${XPATH_USERNAME}
+    Input Text    ${XPATH_USERNAME}    ${username}
+    Input Password    ${XPATH_PASSWORD}    ${password}
+    Click Element    ${XPATH_LOGIN_BUTTON}
+    Wait Until Location Contains    /lightning/    timeout=60 seconds
+
+Open Salesforce Object List
+    [Arguments]    ${object_api_name}
+
+    Open Salesforce Login Page
+    Login To Salesforce
+    ${current_url}=    Get Location
+    ${url_parts}=    Split String    ${current_url}    /lightning/
+    Go To    ${url_parts}[0]/lightning/o/${object_api_name}/list
+    Wait Until Page Contains    New    timeout=60 seconds
