@@ -19,7 +19,7 @@ Do not invent keywords, library features, locators, contracts, requirements, dat
 Choose the simplest readable format that the repository can load without new, unapproved dependencies:
 
 1. Prefer a separate Robot Framework `.resource` data file with a `*** Variables ***` section when native Robot imports are sufficient.
-2. Use CSV, JSON, YAML, or another human-readable format only when a loader/library is already installed and its syntax/API are verified.
+2. Use XLSX, CSV, JSON, YAML, or another human-readable format only when a loader/library is already installed and its syntax/API are verified.
 3. If a separate data file would add complexity and all values are execution-specific, create a named data-builder keyword (preferably in a shared `.resource` file when reused) and document the business-data contract in that resource. Keep the generated fields and valid-value sources explicit.
 
 If the data format/loader or business rules are unknown, do not add a speculative parser or guess values. Create a readable `.resource` with only confirmed data and clearly named configuration placeholders, or state the exact blocker while providing a structurally useful data artifact.
