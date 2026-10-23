@@ -15,7 +15,7 @@ ${XPATH_LOGIN_BUTTON}    xpath=//input[@id='Login']
 *** Keywords ***
 Open Salesforce Login Page
     Open Browser    ${LOGIN_URL}    ${BROWSER}
-    Maximize Browser Window
+    Set Window Size    1920    1080
 
 Login To Salesforce
     ${username}=    Get Environment Variable    SF_USERNAME
