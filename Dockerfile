@@ -37,7 +37,7 @@ COPY libraries/ /app/libraries/
 COPY resources/ /app/resources/
 COPY data/ /app/data/
 COPY docker/entrypoint.sh /usr/local/bin/run-tests
-RUN chmod +x /usr/local/bin/run-tests && mkdir /app/results \
+RUN chmod +x /usr/local/bin/run-tests && mkdir /app/reports \
     && chown -R robot:robot /app /opt/venv
 USER robot
 ENTRYPOINT ["/usr/local/bin/run-tests"]

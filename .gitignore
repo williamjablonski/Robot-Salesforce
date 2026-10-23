@@ -2,6 +2,8 @@
 /.venv-1/
 /.venv-2/
 /results/
+/reports/*
+!/reports/.gitkeep
 /.env
 /.env.*
 !/.env.example

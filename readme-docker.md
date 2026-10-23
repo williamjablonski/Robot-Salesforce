@@ -22,8 +22,8 @@ Run from the repository root:
 
 ```bash
 if [ ! -f .env ]; then cp .env.example .env; fi
-mkdir -p results
-chmod 777 results
+mkdir -p reports
+chmod 777 reports
 ```
 
 Edit `.env` locally with the actual sandbox URLs, username, and password. Use
@@ -39,7 +39,7 @@ Compose uses the published `williamjablonski/robot-salesforce-tests:latest`
 image and pulls it when running the test service. It mounts local `tests/`,
 `libraries/`, `resources/`, and `data/` read-only, so newly authored or modified
 suites, Python keywords, resources, and datasets are available immediately
-without rebuilding or publishing the image. The result directory is writable
+without rebuilding or publishing the image. The `reports/` directory is writable
 by the container's non-root user. On a shared host, replace the example's broad
 directory permissions with appropriate ACLs for container UID 1000.
 
@@ -63,7 +63,7 @@ mount.
 Run all executable `.robot` suites in `tests/`:
 
 ```bash
-docker compose run --rm -T tests tests/
+docker compose run --rm -T tests --outputdir /app/reports tests/
 ```
 
 “Manually” means starting the automated suite yourself from the terminal.
@@ -73,25 +73,25 @@ Run individual suites:
 
 ```bash
 # Validate suite structure without Salesforce credentials or browser actions.
-docker compose run --rm -T tests --dryrun tests/
+docker compose run --rm -T tests --dryrun --outputdir /app/reports tests/
 
 # Salesforce login smoke test (requires SF_USERNAME and SF_PASSWORD in .env).
-docker compose run --rm -T tests tests/salesforce-login-success.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-login-success.robot
 
 # Create a Salesforce Contact (requires SF_USERNAME and SF_PASSWORD in .env).
-docker compose run --rm -T tests tests/salesforce-contacts.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-contacts.robot
 
 # Create a Salesforce Account (requires SF_USERNAME and SF_PASSWORD in .env).
-docker compose run --rm -T tests tests/salesforce-accounts.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-accounts.robot
 
 # Create a Salesforce Opportunity (requires credentials, valid Stage, and Close Date in .env).
-docker compose run --rm -T tests tests/salesforce-opportunities.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-opportunities.robot
 
 # Create a Salesforce Order (requires credentials and an authorized Account, Effective Date, and valid Status in .env).
-docker compose run --rm -T tests tests/salesforce-orders.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-orders.robot
 
 # Create a service catalog entry (Product2; requires SF credentials).
-docker compose run --rm -T tests tests/salesforce-services.robot
+docker compose run --rm -T tests --outputdir /app/reports tests/salesforce-services.robot
 
 ```
 
@@ -104,9 +104,9 @@ an executable QForce suite is available.
 Filter by tag or test name:
 
 ```bash
-docker compose run --rm -T tests --include smoke tests/
-docker compose run --rm -T tests --include regression tests/
-docker compose run --rm -T tests --test 'Criar Conta E Validar Dados' tests/salesforce-accounts.robot
+docker compose run --rm -T tests --include smoke --outputdir /app/reports tests/
+docker compose run --rm -T tests --include regression --outputdir /app/reports tests/
+docker compose run --rm -T tests --test 'Criar Conta E Validar Dados' --outputdir /app/reports tests/salesforce-accounts.robot
 ```
 
 The `smoke` tag selects Salesforce tests. A dry run does not execute suite
@@ -117,12 +117,12 @@ The login smoke test uses `SF_LOGIN_URL` (default:
 `SF_PASSWORD`. Keep credentials only in the ignored local `.env` file or an
 approved secret manager; do not commit them or put them in the Docker image.
 The browser runs headlessly inside the container's Xvfb display, and reports
-are written to `results/`.
+are written to `reports/`.
 
 Validate test structure without executing browser actions:
 
 ```bash
-docker compose run --rm -T tests --dryrun tests/
+docker compose run --rm -T tests --dryrun --outputdir /app/reports tests/
 ```
 
 A dry run validates test structure and keyword resolution only. Compose defines the environment variables
@@ -149,15 +149,15 @@ permissions, authentication, QForce licensing, or test data cleanup.
 
 After each run, inspect:
 
-- `results/report.html`: execution summary.
-- `results/log.html`: detailed log.
-- `results/output.xml`: machine-readable Robot results.
+- `reports/report.html`: execution summary.
+- `reports/log.html`: detailed log.
+- `reports/output.xml`: machine-readable Robot results.
 - Screenshots produced by SeleniumLibrary on failures, when available.
 
 Runs overwrite these filenames. Use a subdirectory to preserve a particular run:
 
 ```bash
-docker compose run --rm -T tests --outputdir /app/results/run-001 tests/
+docker compose run --rm -T tests --outputdir /app/reports/run-001 tests/
 ```
 
 Reports/screenshots can contain Salesforce data. Keep them in authorized
@@ -208,8 +208,8 @@ fail the job. The pipeline creates no successful execution evidence in advance.
 ## Troubleshooting
 
 - **Cannot connect to the Docker daemon:** start Docker Desktop/Engine.
-- **Permission denied in `/app/results`:** grant the container user write access
-  to the host's `results/` directory.
+- **Permission denied in `/app/reports`:** grant the container user write access
+  to the host's `reports/` directory.
 - **No module named QForce:** obtain the approved distribution, add its wheels,
   rebuild, and repeat the import check.
 - **Browser/driver errors:** run `docker compose build --pull --no-cache` to

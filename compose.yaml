@@ -16,9 +16,9 @@ services:
       SF_ORDER_EFFECTIVE_DATE: ${SF_ORDER_EFFECTIVE_DATE:-}
       SF_ORDER_STATUS: ${SF_ORDER_STATUS:-}
     volumes:
-      - ./results:/app/results
+      - ./reports:/app/reports
       - ./tests:/app/tests:ro
       - ./libraries:/app/libraries:ro
       - ./resources:/app/resources:ro
       - ./data:/app/data:ro
-    command: ["tests/"]
+    command: ["--outputdir", "/app/reports", "tests/"]

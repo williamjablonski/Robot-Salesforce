@@ -76,20 +76,26 @@ requires an additional login step.
 Run all project test suites from the macOS terminal:
 
 ```bash
-robot --outputdir results tests/
+robot --outputdir reports tests/
 ```
 
 Robot Framework will discover the `.robot` suites under `tests/` and save the
-HTML report and log in `results/`. Salesforce suites need their required
+HTML report and log in `reports/`. Salesforce suites need their required
 libraries, browser setup, and environment variables configured as described
 above.
+
+To execute all suites in Docker (without dry run):
+
+```bash
+docker compose run --rm -T tests --outputdir /app/reports tests/
+```
 
 To run an individual suite:
 
 ```bash
-robot --outputdir results tests/smoke.robot
-robot --outputdir results tests/salesforce-QForce.robot
-robot --outputdir results tests/salesforce-lightning-xpath.robot
+robot --outputdir reports tests/smoke.robot
+robot --outputdir reports tests/salesforce-QForce.robot
+robot --outputdir reports tests/salesforce-lightning-xpath.robot
 ```
 
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
@@ -100,7 +106,7 @@ variables. Complete any org-specific SSO/MFA flow before relying on the session.
 Both Salesforce examples create uniquely named Account records; the XPath suite
 also edits an Account and checks the required-name validation. Use a
 sandbox/test org: records created by these tests remain in Salesforce for
-inspection. The HTML report and log are written to `results/`.
+inspection. The HTML report and log are written to `reports/`.
 
 ## Docker and CI
 
