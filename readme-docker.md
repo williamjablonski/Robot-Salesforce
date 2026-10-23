@@ -49,9 +49,10 @@ docker compose pull tests
 
 Compose uses the published `williamjablonski/robot-salesforce-tests:latest`
 image and pulls it when running the test service. It mounts local `tests/`,
-`libraries/`, `resources/`, and `data/` read-only, so newly authored or modified
-suites, Python keywords, resources, and datasets are available immediately
-without rebuilding or publishing the image. The `reports/` directory is writable
+`libraries/`, `resources/`, `data/`, and the Docker runner script, so changes to
+suites, screenshot reporting, Python keywords, resources, and datasets are
+available immediately without rebuilding or publishing the image. The
+`reports/` directory is writable
 by the container's non-root user. On a shared host, replace the example's broad
 directory permissions with appropriate ACLs for container UID 1000.
 
@@ -167,7 +168,8 @@ After each run, inspect:
 - `reports/report.html`: execution summary.
 - `reports/log.html`: detailed log.
 - `reports/output.xml`: machine-readable Robot results.
-- Screenshots produced by SeleniumLibrary on failures, when available.
+- Failure screenshots produced by SeleniumLibrary, shown in `report.html` and
+  available as image files alongside the reports.
 
 Runs overwrite these filenames. Use a subdirectory to preserve a particular run:
 

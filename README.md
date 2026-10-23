@@ -82,13 +82,13 @@ an approved secret manager.
 Run all project test suites from the macOS terminal:
 
 ```bash
-robot --outputdir reports tests/
+python -m libraries.robot_runner --outputdir reports tests/
 ```
 
-Robot Framework will discover the `.robot` suites under `tests/` and save the
-HTML report and log in `reports/`. Salesforce suites need their required
-libraries, browser setup, and environment variables configured as described
-above.
+The runner discovers the `.robot` suites under `tests/`, saves the HTML report
+and log in `reports/`, and adds captured failure screenshots to `report.html`.
+Salesforce suites need their required libraries, browser setup, and environment
+variables configured as described above.
 
 To execute all suites in Docker (without dry run):
 
@@ -99,9 +99,9 @@ docker compose run --rm -T tests --outputdir /app/reports tests/
 To run an individual suite:
 
 ```bash
-robot --outputdir reports tests/smoke.robot
-robot --outputdir reports tests/salesforce-QForce.robot
-robot --outputdir reports tests/salesforce-lightning-xpath.robot
+python -m libraries.robot_runner --outputdir reports tests/smoke.robot
+python -m libraries.robot_runner --outputdir reports tests/salesforce-QForce.robot
+python -m libraries.robot_runner --outputdir reports tests/salesforce-lightning-xpath.robot
 ```
 
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
@@ -112,7 +112,9 @@ variables. Complete any org-specific SSO/MFA flow before relying on the session.
 The Salesforce suites create uniquely named records in the configured org;
 records are not automatically deleted. Use a dedicated test user and review
 production automations and side effects before enabling production writes. The
-HTML report and log are written to `reports/`.
+HTML report and log are written to `reports/`. Open `report.html` to see the
+execution summary and captured failure screenshots; `log.html` retains the
+detailed keyword-level log.
 
 ## Docker and CI
 

@@ -30,23 +30,16 @@ Validate Salesforce Target Environment
     END
 
 Login To Salesforce
-    ${previous_log_level}=    Set Log Level    NONE
-    TRY
-        ${username}=    Get Environment Variable    SF_USERNAME
-        ${password}=    Get Environment Variable    SF_PASSWORD
-        Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
-        Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
+    ${username}=    Get Environment Variable    SF_USERNAME
+    ${password}=    Get Environment Variable    SF_PASSWORD
+    Should Not Be Empty    ${username}    SF_USERNAME must be configured in the environment.
+    Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
 
-        Wait Until Element Is Visible    ${XPATH_USERNAME}
-        Input Text    ${XPATH_USERNAME}    ${username}
-        Click Element    ${XPATH_LOGIN_BUTTON}
-        Wait Until Element Is Visible    ${XPATH_PASSWORD}
-        Input Password    ${XPATH_PASSWORD}    ${password}
-        Click Element    ${XPATH_LOGIN_BUTTON}
-        Wait Until Location Contains    /lightning/    timeout=60 seconds
-    FINALLY
-        Set Log Level    ${previous_log_level}
-    END
+    Wait Until Element Is Visible    ${XPATH_USERNAME}
+    Input Text    ${XPATH_USERNAME}    ${username}
+    Input Password    ${XPATH_PASSWORD}    ${password}
+    Click Element    ${XPATH_LOGIN_BUTTON}
+    Wait Until Location Contains    /lightning/    timeout=60 seconds
 
 Open Salesforce Object List
     [Arguments]    ${object_api_name}
