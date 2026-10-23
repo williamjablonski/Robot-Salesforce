@@ -1,8 +1,7 @@
 services:
   tests:
-    build: .
-    image: williamjablonski/robot-salesforce-tests:latest
-    pull_policy: always
+    image: ${ROBOT_TEST_IMAGE:-williamjablonski/robot-salesforce-tests:latest}
+    pull_policy: ${ROBOT_TEST_PULL_POLICY:-always}
     init: true
     shm_size: 2gb
     environment:
@@ -11,6 +10,12 @@ services:
       SF_USERNAME: ${SF_USERNAME:-}
       SF_PASSWORD: ${SF_PASSWORD:-}
       SF_BROWSER: ${SF_BROWSER:-chrome}
+      SF_OPPORTUNITY_STAGE: ${SF_OPPORTUNITY_STAGE:-}
+      SF_OPPORTUNITY_CLOSE_DATE: ${SF_OPPORTUNITY_CLOSE_DATE:-}
+      SF_ORDER_ACCOUNT_NAME: ${SF_ORDER_ACCOUNT_NAME:-}
+      SF_ORDER_EFFECTIVE_DATE: ${SF_ORDER_EFFECTIVE_DATE:-}
+      SF_ORDER_STATUS: ${SF_ORDER_STATUS:-}
     volumes:
       - ./results:/app/results
+      - ./tests:/app/tests:ro
     command: ["tests/"]

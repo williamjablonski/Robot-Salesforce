@@ -36,26 +36,31 @@ docker compose pull tests
 ```
 
 Compose uses the published `williamjablonski/robot-salesforce-tests:latest`
-image and pulls it when running the test service. Normal test runs do not build
-the image. The result directory is writable by the container's non-root user.
-On a shared host, replace the example's broad directory permissions with
-appropriate ACLs for container UID 1000.
+image and pulls it when running the test service. It mounts the local `tests/`
+directory read-only, so newly authored or modified Robot suites are available
+immediately without rebuilding or publishing the image. The result directory
+is writable by the container's non-root user. On a shared host, replace the
+example's broad directory permissions with appropriate ACLs for container UID
+1000.
 
-To build a custom image locally (for example, to include your organization's
-approved QForce wheel), place the wheel and its private dependencies in
-`docker/wheels/`, then explicitly run:
+The published image does not include the private QForce library. If a QForce
+suite is needed, obtain the organization's approved Linux-compatible wheel and
+dependencies, place them in `docker/wheels/`, then explicitly build a separate
+custom image:
 
 ```bash
-docker compose build tests
-docker compose run --rm -T --entrypoint python tests -c 'import QForce'
+docker build --tag robot-salesforce-tests:qforce .
+ROBOT_TEST_IMAGE=robot-salesforce-tests:qforce ROBOT_TEST_PULL_POLICY=never \
+  docker compose run --rm -T --pull never --entrypoint python tests -c 'import QForce'
 ```
 
-The import check is needed only for QForce. Test files are copied into the
-image at build time, so rebuild only when intentionally creating a custom image.
+Use that custom image only for tests requiring QForce. Ordinary suites continue
+to use the published image; source tests remain supplied through the read-only
+mount.
 
 ## Run manually from the terminal
 
-Run **every suite**, including QForce and the QWeb example:
+Run all executable `.robot` suites in `tests/`:
 
 ```bash
 docker compose run --rm -T tests tests/
@@ -67,8 +72,8 @@ The browser runs inside Xvfb; no interactive desktop is exposed.
 Run individual suites:
 
 ```bash
-# Local installation check; no Salesforce credentials needed.
-docker compose run --rm -T tests tests/smoke.robot
+# Validate suite structure without Salesforce credentials or browser actions.
+docker compose run --rm -T tests --dryrun tests/
 
 # Salesforce login smoke test (requires SF_USERNAME and SF_PASSWORD in .env).
 docker compose run --rm -T tests tests/salesforce-login-success.robot
@@ -76,33 +81,36 @@ docker compose run --rm -T tests tests/salesforce-login-success.robot
 # Create a Salesforce Contact (requires SF_USERNAME and SF_PASSWORD in .env).
 docker compose run --rm -T tests tests/salesforce-contacts.robot
 
-# Salesforce through SeleniumLibrary and XPath.
-docker compose run --rm -T tests tests/salesforce-lightning-xpath.robot
+# Create a Salesforce Account (requires SF_USERNAME and SF_PASSWORD in .env).
+docker compose run --rm -T tests tests/salesforce-accounts.robot
 
-# Salesforce through the private QForce library.
-docker compose run --rm -T tests tests/salesforce-QForce.robot
+# Create a Salesforce Opportunity (requires credentials, valid Stage, and Close Date in .env).
+docker compose run --rm -T tests tests/salesforce-opportunities.robot
 
-# QWeb demonstration.
-docker compose run --rm -T tests tests/salesforce-QWeb.robot
+# Create a Salesforce Order (requires credentials and an authorized Account, Effective Date, and valid Status in .env).
+docker compose run --rm -T tests tests/salesforce-orders.robot
+
+# Create a service catalog entry (Product2; requires SF credentials).
+docker compose run --rm -T tests tests/salesforce-services.robot
+
 ```
+
+The legacy smoke, XPath, QForce, and QWeb examples currently use the
+`.robot.txt` suffix. They are reference files, not executable Robot suites; the
+Robot Framework runner does not discover them as `.robot` files. The published
+image does not include QForce. Use an approved QForce-enabled image only when
+an executable QForce suite is available.
 
 Filter by tag or test name:
 
 ```bash
 docker compose run --rm -T tests --include smoke tests/
 docker compose run --rm -T tests --include regression tests/
-docker compose run --rm -T tests --test 'Account Name Is Required' tests/salesforce-lightning-xpath.robot
+docker compose run --rm -T tests --test 'Criar Conta E Validar Dados' tests/salesforce-accounts.robot
 ```
 
-The `smoke` tag selects Salesforce tests; the local installation check has no
-`smoke` tag. Running a tag filter against `tests/` still imports the QForce suite,
-so it requires QForce. To check the installation without Salesforce or QForce,
-select `tests/smoke.robot` directly as shown above. To filter only the XPath
-suite, use:
-
-```bash
-docker compose run --rm -T tests --include smoke tests/salesforce-lightning-xpath.robot
-```
+The `smoke` tag selects Salesforce tests. A dry run does not execute suite
+setup, authenticate, validate the live Salesforce DOM, or create records.
 
 The login smoke test uses `SF_LOGIN_URL` (default:
 `https://q4sureplatform.my.salesforce.com`) and requires `SF_USERNAME` and
@@ -117,25 +125,20 @@ Validate test structure without executing browser actions:
 docker compose run --rm -T tests --dryrun tests/
 ```
 
-A full dry run still requires QForce. Compose defines the environment variables
+A dry run validates test structure and keyword resolution only. Compose defines the environment variables
 referenced by the suites, even when credentials are empty. A dry run does not
 execute setup assertions or validate credential values, authentication, locators,
-or business rules. To validate only the suites with public dependencies, use:
-
-```bash
-docker compose run --rm -T tests --dryrun tests/smoke.robot tests/salesforce-lightning-xpath.robot tests/salesforce-QWeb.robot
-```
+or business rules.
 
 Robot's exit code is preserved by the container and makes the pipeline fail
 when tests fail. No failure is silently skipped.
 
 ## Current suite limitations
 
-`tests/salesforce-QWeb.robot` is an existing placeholder: it opens
+`tests/salesforce-QWeb.robot.txt` is an existing placeholder: it opens
 `https://example.com` and expects Email/Password/Sign in/Dashboard elements that
-are not present there. It must be adapted to an actual application before a
-complete run can pass. The all-suite command deliberately includes it and
-reports its actual failure.
+are not present there. It must be adapted and renamed to an executable `.robot`
+suite before it can run.
 
 The Salesforce suites create and update synthetic Account records and leave
 them in the org. Use a sandbox authorized for those writes. Their locators and
@@ -165,9 +168,9 @@ artifacts for three days; adjust retention to your organization's policy.
 
 Workflow: `.github/workflows/docker-tests.yml`.
 
-On pull requests and pushes to `main` or `master`, the `smoke` job builds the
-image and runs `tests/smoke.robot` without Salesforce credentials. Reports are
-uploaded even when execution fails.
+On pull requests and pushes to `main` or `master`, the `smoke` job pulls the
+published image and dry-runs the Account suite without Salesforce credentials
+or record creation. Reports are uploaded even when validation fails.
 
 To enable all suites automatically on pushes:
 
@@ -180,8 +183,9 @@ To enable all suites automatically on pushes:
    in the secret, not in workflow source. Refresh expiring signed URLs as needed.
 4. Set the **repository variable** `RUN_SALESFORCE_TESTS` to `true`.
 5. Adapt the QWeb placeholder and complete the org-specific test configuration.
-6. Push to `main` or `master`. After smoke passes, `full-suite` builds with
-   QForce, verifies its import, and executes `tests/`.
+6. Push to `main` or `master`. After smoke validation passes, `full-suite`
+   builds the private QForce-enabled image, verifies its import, and executes
+   the executable `.robot` suites in `tests/`.
 
 Private wheel dependencies must also be made available through your approved
 package distribution mechanism before enabling the full job. The supplied

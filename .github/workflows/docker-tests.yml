@@ -22,10 +22,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare report directory
         run: mkdir -p results && chmod 777 results
-      - name: Build image
-        run: docker compose build
-      - name: Run local smoke test
-        run: docker compose run --rm -T tests tests/smoke.robot
+      - name: Validate Robot suite structure
+        run: docker compose run --rm -T tests --dryrun tests/salesforce-accounts.robot
       - name: Save reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,6 +47,8 @@ jobs:
       SF_LIGHTNING_URL: ${{ vars.SF_LIGHTNING_URL }}
       SF_USERNAME: ${{ secrets.SF_USERNAME }}
       SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+      ROBOT_TEST_IMAGE: robot-salesforce-tests:qforce
+      ROBOT_TEST_PULL_POLICY: never
     steps:
       - uses: actions/checkout@v4
       - name: Check configuration and install approved QForce wheel into build context
@@ -72,12 +72,12 @@ jobs:
             "$QFORCE_WHEEL_URL" --output "docker/wheels/$QFORCE_WHEEL_FILENAME"
           mkdir -p results
           chmod 777 results
-      - name: Build image with QForce
-        run: docker compose build
+      - name: Build QForce-enabled image
+        run: docker build --tag robot-salesforce-tests:qforce .
       - name: Verify QForce import
-        run: docker compose run --rm -T --entrypoint python tests -c 'import QForce'
+        run: docker compose run --rm -T --pull never --entrypoint python tests -c 'import QForce'
       - name: Execute every suite
-        run: docker compose run --rm -T tests tests/
+        run: docker compose run --rm -T --pull never tests tests/
       - name: Save reports
         if: always()
         uses: actions/upload-artifact@v4
