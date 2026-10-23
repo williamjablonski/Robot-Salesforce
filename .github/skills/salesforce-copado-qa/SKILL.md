@@ -16,6 +16,8 @@ Use Copilot as an assistant, not as a source of truth. Every generated requireme
 
 CRT (robotic execution), Copado CI/CD, and Copado AI features are distinct. Do not assume Copilot has org access, Copado access, or a configured runner.
 
+For all Robot suite authoring/refactoring, also follow [robot-framework-test-engineering](../robot-framework-test-engineering/SKILL.md). **Every automation change must include or update a readable, business-relevant test-data artifact** (prefer a Robot `.resource` data file, or another format only when an installed loader is verified), and must reuse/extract meaningful shared keywords into imported resource files where appropriate. Runtime values may be generated locally with verified Robot keywords; never call Copilot/LLM during test execution. Copilot can assist with synthetic test data during authoring only; validate it against confirmed business rules and never use secrets or real customer data.
+
 ## 1. Discover and establish evidence
 
 Before planning or changing files:
@@ -110,7 +112,10 @@ Use automation for repeatable, objective, valuable checks. Prioritize P0/P1 for 
 ### Libraries, structure, and keywords
 
 - Use Robot Framework and only libraries actually present/approved in the project: CRT, QForce, QWeb, or other already configured Robot libraries.
-- Reuse project resources and established authentication, setup/teardown, data, and execution patterns. Keep tests readable and domain-focused; do not abstract individual clicks unnecessarily.
+- Reuse project resources and established authentication, setup/teardown, data, and execution patterns. Put reusable keywords in a separate `.resource` file and import it when shared or when it clarifies suite behavior. Avoid duplicating login, navigation, and business operations across suites, but do not abstract individual clicks unnecessarily.
+- Every automation task must create or update an explicit data artifact tied to the tested business flow. Prefer native Robot `.resource` variables for readable datasets; use CSV/JSON/YAML only when an installed loader is confirmed. Include valid synthetic scenario data and distinguish fixed values from unique runtime data.
+- Generate unique runtime data through verified Robot keywords/helpers only where the business format permits it. Keep expected outcomes deterministic and domain-valid. Copilot may help draft synthetic data during authoring, but runtime tests must not depend on calling Copilot/LLMs.
+- If fields, valid values, relationships, data loader, or business rules are unknown, do not invent them. Mark configuration/metadata as required, include a useful data artifact with explicit placeholders where appropriate, and report the blocker.
 - Verify keyword names, argument signatures, return behavior, and limitations using existing code, installed Libdoc, or official version-matched docs. Qualify ambiguous keywords.
 - Do not invent QForce/QWeb/CRT keywords, locators, command-line flags, APIs, capabilities, or run endpoints. Never mix APIs from separate frameworks as if interchangeable.
 - If a private library or capability is absent, record the exact blocker and request the approved dependency/integration. Do not install a similarly named package or silently substitute another automation stack.
