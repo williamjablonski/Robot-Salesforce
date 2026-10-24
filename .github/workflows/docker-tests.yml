@@ -47,6 +47,10 @@ jobs:
       SF_LIGHTNING_URL: ${{ vars.SF_LIGHTNING_URL }}
       SF_USERNAME: ${{ secrets.SF_USERNAME }}
       SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+      SF_MFA_IMAP_HOST: ${{ vars.SF_MFA_IMAP_HOST || 'imap.gmail.com' }}
+      SF_MFA_EMAIL_USERNAME: ${{ secrets.SF_MFA_EMAIL_USERNAME }}
+      SF_MFA_EMAIL_PASSWORD: ${{ secrets.SF_MFA_EMAIL_PASSWORD }}
+      SF_MFA_EMAIL_SENDER: ${{ vars.SF_MFA_EMAIL_SENDER || 'noreply@salesforce.com' }}
       ROBOT_TEST_IMAGE: robot-salesforce-tests:qforce
       ROBOT_TEST_PULL_POLICY: never
     steps:
@@ -58,7 +62,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SF_LOGIN_URL SF_LIGHTNING_URL SF_USERNAME SF_PASSWORD QFORCE_WHEEL_URL QFORCE_WHEEL_FILENAME; do
+          for name in SF_LOGIN_URL SF_LIGHTNING_URL SF_USERNAME SF_PASSWORD SF_MFA_EMAIL_USERNAME SF_MFA_EMAIL_PASSWORD QFORCE_WHEEL_URL QFORCE_WHEEL_FILENAME; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing configuration: $name"
               exit 1

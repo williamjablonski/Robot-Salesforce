@@ -9,9 +9,10 @@ with a virtual display. No local Python installation is required.
 - Docker Engine or Docker Desktop running, with Docker Compose v2.
 - Internet access during the build to Debian repositories and the Python package index.
 - For Salesforce: an authorized target org, a dedicated test user, and network access
-  from the container/CI runner to the org. The existing login examples require
-  an authentication flow that completes without interactive SSO/MFA; adapt them
-  to your organization's approved flow when necessary.
+  from the container/CI runner to the org. If Salesforce presents email
+  verification, the runner also needs network access to the configured IMAP
+  server and secure mailbox credentials. Other SSO/MFA methods still require
+  your organization's approved flow.
 - For QForce: your organization's approved Linux/Python 3.11-compatible wheel
   and any private dependency wheels. This library is not installed from a
   similarly named public package. Follow the vendor's licensing requirements.
@@ -26,8 +27,11 @@ mkdir -p reports
 chmod 777 reports
 ```
 
-Edit `.env` locally with the target org URLs, environment, username, and
-password. Set `SF_TARGET_ENVIRONMENT=sandbox` for a sandbox, or set it to
+Edit `.env` locally with the target org URLs, environment, Salesforce
+credentials, and mailbox credentials for the account receiving verification
+emails. For Gmail, enable IMAP and use a dedicated app password in
+`SF_MFA_EMAIL_PASSWORD`, not the account's normal password. Set
+`SF_TARGET_ENVIRONMENT=sandbox` for a sandbox, or set it to
 `production` and explicitly set `SF_ALLOW_PRODUCTION_WRITES=true` to permit
 production runs. Production suites create persistent records and may trigger
 org automation; use only after org-owner approval and with a dedicated test
@@ -126,7 +130,9 @@ The `smoke` tag selects Salesforce tests. A dry run does not execute suite
 setup, authenticate, validate the live Salesforce DOM, or create records.
 
 The login smoke test uses `SF_LOGIN_URL` and requires `SF_USERNAME`,
-`SF_PASSWORD`, and `SF_TARGET_ENVIRONMENT`. Production requires the explicit
+`SF_PASSWORD`, and `SF_TARGET_ENVIRONMENT`; if Salesforce presents an email
+verification challenge, it also requires `SF_MFA_EMAIL_USERNAME` and
+`SF_MFA_EMAIL_PASSWORD`. Production requires the explicit
 `SF_ALLOW_PRODUCTION_WRITES=true` opt-in. Keep credentials only in the ignored
 local `.env` file or an approved secret manager; do not commit them or put them
 in the Docker image. GitHub Copilot can start the local command but does not
@@ -234,7 +240,7 @@ fail the job. The pipeline creates no successful execution evidence in advance.
   chromium-driver pair from the same Debian repositories. A normal build may
   reuse cached installation layers. Do not inject a macOS/Windows driver.
 - **Salesforce login timeout:** check URLs, user permissions, network restrictions,
-  and the approved SSO/MFA flow.
+  mailbox IMAP settings/app password, and any organization-specific SSO flow.
 - **QWeb demonstration fails on Email:** adapt the existing placeholder as noted
   above; this is not resolved by installing Docker.
 

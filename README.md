@@ -68,14 +68,22 @@ environment) before running the Salesforce suite:
 | `SF_ALLOW_PRODUCTION_WRITES` | Must be `true` to run suites that create records against production. Defaults to `false`. |
 | `SF_USERNAME` | Dedicated Salesforce test user. |
 | `SF_PASSWORD` | Test user's password; store it as a secret/private variable. |
+| `SF_MFA_IMAP_HOST` | IMAP server for the mailbox receiving Salesforce verification messages; defaults to `imap.gmail.com`. |
+| `SF_MFA_EMAIL_USERNAME` | Mailbox account used to read the verification message; store it as a secret/private variable. |
+| `SF_MFA_EMAIL_PASSWORD` | Mailbox app password or other IMAP password; store it as a secret/private variable. |
+| `SF_MFA_EMAIL_SENDER` | Expected sender of the Salesforce verification message; defaults to `noreply@salesforce.com`. |
 
-The example assumes that login completes without an interactive MFA prompt. Add
-your organization's approved SSO/MFA handling before using it in an org that
-requires an additional login step. The UI suites create Salesforce records that
+When Salesforce displays the email verification challenge, the login keyword
+searches the mailbox's INBOX over IMAP/TLS for a matching message received after
+the current login attempt, then enters and submits its `Código de verificação`.
+For Gmail, configure IMAP access and use a dedicated app password in
+`SF_MFA_EMAIL_PASSWORD`; do not use the account's normal password. The test
+does not read email when Salesforce proceeds directly to Lightning. Salesforce
+and mailbox credentials must be configured in the local ignored `.env` file or
+an approved secret manager. The UI suites create Salesforce records that
 remain in the org; production execution requires explicit approval and the
 production-write opt-in above. GitHub Copilot does not provide Salesforce
-authentication: configure credentials only in the local ignored `.env` file or
-an approved secret manager.
+authentication.
 
 ## Run
 
@@ -107,7 +115,8 @@ python -m libraries.robot_runner --outputdir reports tests/salesforce-lightning-
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
 and `SF_PASSWORD` as described above. The SeleniumLibrary example also accepts
 `SF_BROWSER` (defaults to `chrome`). Keep credentials in secret/private
-variables. Complete any org-specific SSO/MFA flow before relying on the session.
+variables. Email-based Salesforce verification is supported as described
+above; other SSO or MFA methods still require the organization's approved flow.
 
 The Salesforce suites create uniquely named records in the configured org;
 records are not automatically deleted. Use a dedicated test user and review

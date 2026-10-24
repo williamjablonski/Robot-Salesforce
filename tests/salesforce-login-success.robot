@@ -7,7 +7,7 @@ Suite Teardown      Close All Browsers
 
 *** Test Cases ***
 Login With Valid Salesforce Credentials
-    [Documentation]    Logs in with credentials supplied through secure environment variables and verifies Lightning opens.
+    [Documentation]    Logs in with secure environment credentials, handles an email verification challenge when shown, and verifies Lightning opens.
     [Tags]    salesforce    login    smoke
 
     Login To Salesforce

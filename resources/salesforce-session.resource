@@ -4,6 +4,7 @@ Library    SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    r
 Library    OperatingSystem
 Library    String
 Resource    label-ui.resource
+Resource    salesforce-email.resource
 
 *** Variables ***
 ${LOGIN_URL}    %{SF_LOGIN_URL=https://q4sureplatform.my.salesforce.com}
@@ -38,7 +39,19 @@ Login To Salesforce
     Wait Until Element Is Visible    ${XPATH_USERNAME}
     Input Text    ${XPATH_USERNAME}    ${username}
     Input Password    ${XPATH_PASSWORD}    ${password}
+    ${login_request_timestamp}=    Get Salesforce Login Request Timestamp
     Click Element    ${XPATH_LOGIN_BUTTON}
+    ${login_state}=    Wait For Salesforce Login State
+    ...    ${LOGIN_EXPECTED_PATH}
+    ...    ${LOGIN_MFA_CODE_LABEL}
+    IF    $login_state == "verification"
+        Retrieve And Submit Salesforce Verification Code
+        ...    ${LOGIN_MFA_CODE_LABEL}
+        ...    ${LOGIN_MFA_VERIFY_BUTTON}
+        ...    ${LOGIN_MFA_EMAIL_SENDER}
+        ...    ${login_request_timestamp}
+        ...    ${LOGIN_MFA_IMAP_HOST}
+    END
     Wait Until Location Contains    /lightning/    timeout=60 seconds
 
 Open Salesforce Object List
