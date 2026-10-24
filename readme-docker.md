@@ -114,6 +114,10 @@ docker compose run --rm -T tests --outputdir /app/results tests/salesforce-servi
 # Campaign fields; set SF_CAMPAIGN_STATUS if required by the org).
 docker compose run --rm -T tests --outputdir /app/results tests/salesforce-campaigns.robot
 
+# Run Actionable Lists CRUD after confirming the object API name, list path,
+# field/action labels, and configuring the SF_ACTIONABLE_LIST_* variables.
+docker compose run --rm -T tests --outputdir /app/results tests/salesforce-actionable-lists.robot
+
 ```
 
 The legacy smoke, XPath, QForce, and QWeb examples currently use the
@@ -126,6 +130,12 @@ The Campaign CRUD test creates one uniquely named Campaign, reads it, updates
 its name, then confirms deletion of that same record. It does not delete
 pre-existing campaigns. Confirm the Campaign form labels and required fields
 in the target org; set `SF_CAMPAIGN_STATUS` to a valid org status if required.
+
+The Actionable Lists CRUD suite uses only the object API name, list route, and
+exact UI labels supplied through `SF_ACTIONABLE_LIST_*` variables. Those values
+are not present in repository metadata and must be confirmed in the target
+org. The test deletes only its own uniquely named synthetic record. If it fails
+before deletion, that record may remain in the org.
 
 Filter by tag or test name:
 

@@ -80,6 +80,14 @@ environment) before running the Salesforce suite:
 | `SF_MFA_EMAIL_PASSWORD` | Mailbox app password or other IMAP password; store it as a secret/private variable. |
 | `SF_MFA_EMAIL_SENDER` | Expected sender of the Salesforce verification message; defaults to `noreply@salesforce.com`. |
 | `SF_CAMPAIGN_STATUS` | Optional valid Campaign Status label for the Campaign CRUD test; configure it if required by the target org. |
+| `SF_ACTIONABLE_LIST_OBJECT_API_NAME` | Required confirmed Salesforce API name for the Actionable Lists CRUD test. |
+| `SF_ACTIONABLE_LIST_NAME_LABEL` | Required exact UI label for the Actionable List name field. |
+| `SF_ACTIONABLE_LIST_LIST_PATH` | Required confirmed Lightning path of the Actionable Lists list page. |
+| `SF_ACTIONABLE_LIST_NEW_LABEL` | Required exact visible label for creating a list. |
+| `SF_ACTIONABLE_LIST_SAVE_LABEL` | Required exact visible label for saving a list. |
+| `SF_ACTIONABLE_LIST_EDIT_LABEL` | Required exact visible label for editing a list. |
+| `SF_ACTIONABLE_LIST_DELETE_LABEL` | Required exact visible label for the record delete action. |
+| `SF_ACTIONABLE_LIST_DELETE_CONFIRM_LABEL` | Required exact visible label for confirming deletion. |
 
 When Salesforce displays the email verification challenge, the login keyword
 searches the mailbox's INBOX over IMAP/TLS for a matching message received after
@@ -119,6 +127,7 @@ python -m libraries.robot_runner --outputdir results tests/smoke.robot
 python -m libraries.robot_runner --outputdir results tests/salesforce-QForce.robot
 python -m libraries.robot_runner --outputdir results tests/salesforce-lightning-xpath.robot
 python -m libraries.robot_runner --outputdir results tests/salesforce-campaigns.robot
+python -m libraries.robot_runner --outputdir results tests/salesforce-actionable-lists.robot
 ```
 
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
@@ -140,6 +149,13 @@ Campaign, it deletes only that record. Confirm the Campaign Name/Status labels
 and required fields in the target org before running it. Configure
 `SF_CAMPAIGN_STATUS` when the org requires a valid Campaign status; the value
 must be accepted by that org.
+
+The Actionable Lists CRUD suite requires the Salesforce object API name, list
+path, and exact UI labels to be confirmed in the target org and configured in
+the corresponding `SF_ACTIONABLE_LIST_*` environment variables before
+execution. The repository does not contain metadata for this object. The test
+deletes only the uniquely named synthetic list it creates; if a failure occurs
+before deletion, that record may remain in the org.
 
 ## Docker and CI
 

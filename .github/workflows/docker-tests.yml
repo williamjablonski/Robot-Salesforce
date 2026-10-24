@@ -26,6 +26,8 @@ jobs:
         run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-accounts.robot
       - name: Validate Campaign CRUD suite structure
         run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-campaigns.robot
+      - name: Validate Actionable Lists CRUD suite structure
+        run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-actionable-lists.robot
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,6 +56,14 @@ jobs:
       SF_MFA_EMAIL_PASSWORD: ${{ secrets.SF_MFA_EMAIL_PASSWORD }}
       SF_MFA_EMAIL_SENDER: ${{ vars.SF_MFA_EMAIL_SENDER || 'noreply@salesforce.com' }}
       SF_CAMPAIGN_STATUS: ${{ vars.SF_CAMPAIGN_STATUS }}
+      SF_ACTIONABLE_LIST_OBJECT_API_NAME: ${{ vars.SF_ACTIONABLE_LIST_OBJECT_API_NAME }}
+      SF_ACTIONABLE_LIST_NAME_LABEL: ${{ vars.SF_ACTIONABLE_LIST_NAME_LABEL }}
+      SF_ACTIONABLE_LIST_LIST_PATH: ${{ vars.SF_ACTIONABLE_LIST_LIST_PATH }}
+      SF_ACTIONABLE_LIST_NEW_LABEL: ${{ vars.SF_ACTIONABLE_LIST_NEW_LABEL }}
+      SF_ACTIONABLE_LIST_SAVE_LABEL: ${{ vars.SF_ACTIONABLE_LIST_SAVE_LABEL }}
+      SF_ACTIONABLE_LIST_EDIT_LABEL: ${{ vars.SF_ACTIONABLE_LIST_EDIT_LABEL }}
+      SF_ACTIONABLE_LIST_DELETE_LABEL: ${{ vars.SF_ACTIONABLE_LIST_DELETE_LABEL }}
+      SF_ACTIONABLE_LIST_DELETE_CONFIRM_LABEL: ${{ vars.SF_ACTIONABLE_LIST_DELETE_CONFIRM_LABEL }}
       ROBOT_TEST_IMAGE: robot-salesforce-tests:qforce
       ROBOT_TEST_PULL_POLICY: never
     steps:
