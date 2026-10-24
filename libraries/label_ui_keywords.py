@@ -114,6 +114,28 @@ class LabelUIKeywords:
         highlight_selenium_element(selenium, element)
         selenium.click_element(element)
 
+    @keyword("Click Text In Dialog")
+    def click_text_in_dialog(self, text: str) -> None:
+        """Click one visible button or role button with exact text inside a dialog."""
+        selenium = self._selenium()
+        literal = self._xpath_literal(text)
+        locator = (
+            "xpath=//*[@role = 'dialog']"
+            f"//*[self::button or @role = 'button']"
+            f"[normalize-space(.) = {literal} or @aria-label = {literal}]"
+        )
+        selenium.wait_until_element_is_visible(
+            locator,
+            error=f"No visible dialog button found with label {text!r}.",
+        )
+        element = self._single_visible_element(
+            selenium.get_webelements(locator),
+            text,
+            "dialog button",
+        )
+        highlight_selenium_element(selenium, element)
+        selenium.click_element(element)
+
     @keyword("Highlight Element")
     def highlight_element(self, locator: str, duration: float = 0.3) -> None:
         """Highlight the one visible element matched by a SeleniumLibrary locator."""

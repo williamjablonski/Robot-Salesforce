@@ -110,6 +110,10 @@ docker compose run --rm -T tests --outputdir /app/results tests/salesforce-order
 # Create a service catalog entry (Product2; requires SF credentials).
 docker compose run --rm -T tests --outputdir /app/results tests/salesforce-services.robot
 
+# Run Campaign create/read/update/delete (requires SF credentials and confirmed
+# Campaign fields; set SF_CAMPAIGN_STATUS if required by the org).
+docker compose run --rm -T tests --outputdir /app/results tests/salesforce-campaigns.robot
+
 ```
 
 The legacy smoke, XPath, QForce, and QWeb examples currently use the
@@ -117,6 +121,11 @@ The legacy smoke, XPath, QForce, and QWeb examples currently use the
 Robot Framework runner does not discover them as `.robot` files. The published
 image does not include QForce. Use an approved QForce-enabled image only when
 an executable QForce suite is available.
+
+The Campaign CRUD test creates one uniquely named Campaign, reads it, updates
+its name, then confirms deletion of that same record. It does not delete
+pre-existing campaigns. Confirm the Campaign form labels and required fields
+in the target org; set `SF_CAMPAIGN_STATUS` to a valid org status if required.
 
 Filter by tag or test name:
 

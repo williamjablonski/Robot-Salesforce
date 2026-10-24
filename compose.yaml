@@ -22,6 +22,7 @@ services:
       SF_ORDER_ACCOUNT_NAME: ${SF_ORDER_ACCOUNT_NAME:-}
       SF_ORDER_EFFECTIVE_DATE: ${SF_ORDER_EFFECTIVE_DATE:-}
       SF_ORDER_STATUS: ${SF_ORDER_STATUS:-}
+      SF_CAMPAIGN_STATUS: ${SF_CAMPAIGN_STATUS:-}
     volumes:
       - ./results:/app/results
       - ./tests:/app/tests:ro

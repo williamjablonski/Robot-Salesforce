@@ -91,6 +91,22 @@ class LabelUIKeywordsTests(unittest.TestCase):
             ),
         )
 
+    def test_click_text_in_dialog_highlights_and_clicks_dialog_button(self):
+        button = Mock(id="confirm-delete", is_displayed=Mock(return_value=True))
+        self.selenium.get_webelements.return_value = [button]
+
+        self.library.click_text_in_dialog("Delete")
+
+        locator = self.selenium.wait_until_element_is_visible.call_args.args[0]
+        self.assertIn("//*[@role = 'dialog']", locator)
+        self.assertIn("normalize-space(.) = 'Delete'", locator)
+        self.assertLess(
+            self.selenium.mock_calls.index(
+                call.driver.execute_script(ANY, button)
+            ),
+            self.selenium.mock_calls.index(call.click_element(button)),
+        )
+
     def test_highlight_element_targets_one_visible_locator_match(self):
         button = Mock(id="save-button", is_displayed=Mock(return_value=True))
         self.selenium.get_webelements.return_value = [button]

@@ -24,6 +24,8 @@ jobs:
         run: mkdir -p results && chmod 777 results
       - name: Validate Robot suite structure
         run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-accounts.robot
+      - name: Validate Campaign CRUD suite structure
+        run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-campaigns.robot
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,6 +53,7 @@ jobs:
       SF_MFA_EMAIL_USERNAME: ${{ secrets.SF_MFA_EMAIL_USERNAME }}
       SF_MFA_EMAIL_PASSWORD: ${{ secrets.SF_MFA_EMAIL_PASSWORD }}
       SF_MFA_EMAIL_SENDER: ${{ vars.SF_MFA_EMAIL_SENDER || 'noreply@salesforce.com' }}
+      SF_CAMPAIGN_STATUS: ${{ vars.SF_CAMPAIGN_STATUS }}
       ROBOT_TEST_IMAGE: robot-salesforce-tests:qforce
       ROBOT_TEST_PULL_POLICY: never
     steps:

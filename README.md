@@ -79,6 +79,7 @@ environment) before running the Salesforce suite:
 | `SF_MFA_EMAIL_USERNAME` | Mailbox account used to read the verification message; store it as a secret/private variable. |
 | `SF_MFA_EMAIL_PASSWORD` | Mailbox app password or other IMAP password; store it as a secret/private variable. |
 | `SF_MFA_EMAIL_SENDER` | Expected sender of the Salesforce verification message; defaults to `noreply@salesforce.com`. |
+| `SF_CAMPAIGN_STATUS` | Optional valid Campaign Status label for the Campaign CRUD test; configure it if required by the target org. |
 
 When Salesforce displays the email verification challenge, the login keyword
 searches the mailbox's INBOX over IMAP/TLS for a matching message received after
@@ -117,6 +118,7 @@ To run an individual suite:
 python -m libraries.robot_runner --outputdir results tests/smoke.robot
 python -m libraries.robot_runner --outputdir results tests/salesforce-QForce.robot
 python -m libraries.robot_runner --outputdir results tests/salesforce-lightning-xpath.robot
+python -m libraries.robot_runner --outputdir results tests/salesforce-campaigns.robot
 ```
 
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
@@ -131,6 +133,13 @@ production automations and side effects before enabling production writes. The
 HTML report and log are written to `results/`. Open `report.html` to see the
 execution summary and captured failure screenshots; `log.html` retains the
 detailed keyword-level log.
+
+The Campaign CRUD suite is an exception to the general record-retention
+behavior: after creating, reading, and renaming its uniquely named synthetic
+Campaign, it deletes only that record. Confirm the Campaign Name/Status labels
+and required fields in the target org before running it. Configure
+`SF_CAMPAIGN_STATUS` when the org requires a valid Campaign status; the value
+must be accepted by that org.
 
 ## Docker and CI
 
