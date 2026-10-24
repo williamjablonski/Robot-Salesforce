@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Shared SeleniumLibrary session setup for executable Salesforce UI suites.
+Documentation    Shared SeleniumLibrary session setup for executable Salesforce UI suites; direct login controls are highlighted before interaction.
 Library    SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    run_on_failure=Capture Page Screenshot
 Library    OperatingSystem
 Library    String
@@ -37,9 +37,12 @@ Login To Salesforce
     Should Not Be Empty    ${password}    SF_PASSWORD must be configured in the environment.
 
     Wait Until Element Is Visible    ${XPATH_USERNAME}
+    LabelUI.Highlight Element    ${XPATH_USERNAME}
     Input Text    ${XPATH_USERNAME}    ${username}
+    LabelUI.Highlight Element    ${XPATH_PASSWORD}
     Input Password    ${XPATH_PASSWORD}    ${password}
     ${login_request_timestamp}=    Get Salesforce Login Request Timestamp
+    LabelUI.Highlight Element    ${XPATH_LOGIN_BUTTON}
     Click Element    ${XPATH_LOGIN_BUTTON}
     ${login_state}=    Wait For Salesforce Login State
     ...    ${LOGIN_EXPECTED_PATH}

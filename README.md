@@ -29,8 +29,9 @@ Every executable Salesforce `.robot` suite imports the shared
 [salesforce-session.resource](resources/salesforce-session.resource), which
 imports the label-based library and centralizes login/object-list setup. Each
 suite also imports its business-data resource from `data/`. Files ending in
-`.txt` are reference examples and are intentionally not affected by this
-pattern.
+`.txt` are reference examples and are not run by the standard runner. The
+Selenium XPath reference uses the highlight keyword directly; QForce/QWeb
+references remain examples because their libraries are not configured here.
 
 Import [label-ui.resource](resources/label-ui.resource) directly only when a
 suite does not need the shared Salesforce session:
@@ -54,6 +55,12 @@ by exact visible text/accessibility label. `Verify Text` waits for exact
 normalized text to become visible. The `LabelUI` namespace avoids keyword-name
 collisions with QWeb. Confirm labels and accessible names in the target DOM;
 the helper does not validate Salesforce org markup by itself.
+Before typing or clicking, the helper briefly outlines the resolved element in
+magenta and restores its original inline style. Use `LabelUI.Highlight Element`
+with a SeleniumLibrary locator to highlight an element directly. This visual
+cue is visible in a locally displayed browser; Docker executes under Xvfb and
+does not show the transient highlight on the host desktop. The outline is shown
+for 0.3 seconds before the interaction.
 
 ## Salesforce test configuration
 

@@ -1,10 +1,53 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from robot.api.deco import keyword, library
 from robot.libraries.BuiltIn import BuiltIn
 from selenium.webdriver.common.by import By
+
+
+def highlight_selenium_element(
+    selenium: Any,
+    element: Any,
+    duration: float = 0.3,
+) -> None:
+    """Temporarily outline one Selenium element, then restore its inline style."""
+    if duration <= 0:
+        raise ValueError("Highlight duration must be greater than zero.")
+
+    original_style = selenium.driver.execute_script(
+        """
+        const element = arguments[0];
+        const originalStyle = element.getAttribute("style");
+        element.style.setProperty("outline", "3px solid #ff00ff", "important");
+        element.style.setProperty("outline-offset", "2px", "important");
+        element.style.setProperty(
+            "box-shadow",
+            "0 0 0 4px rgba(255, 0, 255, 0.25)",
+            "important"
+        );
+        return originalStyle;
+        """,
+        element,
+    )
+    try:
+        time.sleep(duration)
+    finally:
+        selenium.driver.execute_script(
+            """
+            const element = arguments[0];
+            const originalStyle = arguments[1];
+            if (originalStyle === null) {
+                element.removeAttribute("style");
+            } else {
+                element.setAttribute("style", originalStyle);
+            }
+            """,
+            element,
+            original_style,
+        )
 
 
 @library(scope="SUITE", auto_keywords=False)
@@ -51,6 +94,7 @@ class LabelUIKeywords:
             control,
             error=f"Form control for label {label!r} is not visible.",
         )
+        highlight_selenium_element(selenium, control)
         selenium.input_text(control, text, clear=True)
 
     @keyword("Click Text")
@@ -67,7 +111,23 @@ class LabelUIKeywords:
             text,
             "clickable element",
         )
+        highlight_selenium_element(selenium, element)
         selenium.click_element(element)
+
+    @keyword("Highlight Element")
+    def highlight_element(self, locator: str, duration: float = 0.3) -> None:
+        """Highlight the one visible element matched by a SeleniumLibrary locator."""
+        selenium = self._selenium()
+        selenium.wait_until_element_is_visible(
+            locator,
+            error=f"No visible element found for locator {locator!r}.",
+        )
+        element = self._single_visible_element(
+            selenium.get_webelements(locator),
+            locator,
+            "element",
+        )
+        highlight_selenium_element(selenium, element, duration)
 
     @keyword("Verify Text")
     def verify_text(self, text: str) -> None:

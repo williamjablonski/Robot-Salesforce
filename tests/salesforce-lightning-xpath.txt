@@ -3,6 +3,7 @@ Documentation       End-to-end Salesforce Lightning examples using Robot Framewo
 Library             SeleniumLibrary    timeout=15 seconds    implicit_wait=0 seconds    run_on_failure=Capture Page Screenshot
 Library             String
 Library             OperatingSystem
+Library             ../libraries/label_ui_keywords.py    WITH NAME    LabelUI
 Suite Setup         Login To Salesforce And Open Accounts
 Suite Teardown      Close All Browsers
 
@@ -87,8 +88,11 @@ Login To Salesforce And Open Accounts
     Open Browser    ${LOGIN_URL}    ${BROWSER}
     Maximize Browser Window
     Wait Until Element Is Visible    ${XPATH_USERNAME}
+    LabelUI.Highlight Element    ${XPATH_USERNAME}
     Input Text    ${XPATH_USERNAME}    ${username}
+    LabelUI.Highlight Element    ${XPATH_PASSWORD}
     Input Password    ${XPATH_PASSWORD}    ${password}
+    LabelUI.Highlight Element    ${XPATH_LOGIN_BUTTON}
     Click Element    ${XPATH_LOGIN_BUTTON}
 
     # Complete the organization's approved SSO/MFA flow before relying on the session.
@@ -98,15 +102,20 @@ Login To Salesforce And Open Accounts
 Open New Account Form
     Go To    ${ACCOUNT_LIST_URL}
     Wait Until Element Is Visible    ${XPATH_NEW_ACCOUNT}
+    LabelUI.Highlight Element    ${XPATH_NEW_ACCOUNT}
     Click Element    ${XPATH_NEW_ACCOUNT}
     Wait Until Element Is Visible    ${XPATH_ACCOUNT_NAME_INPUT}
 
 Fill Account Form
     [Arguments]    ${account_name}    ${phone}    ${website}    ${description}
 
+    LabelUI.Highlight Element    ${XPATH_ACCOUNT_NAME_INPUT}
     Input Text    ${XPATH_ACCOUNT_NAME_INPUT}    ${account_name}
+    LabelUI.Highlight Element    ${XPATH_PHONE_INPUT}
     Input Text    ${XPATH_PHONE_INPUT}    ${phone}
+    LabelUI.Highlight Element    ${XPATH_WEBSITE_INPUT}
     Input Text    ${XPATH_WEBSITE_INPUT}    ${website}
+    LabelUI.Highlight Element    ${XPATH_DESCRIPTION_INPUT}
     Input Text    ${XPATH_DESCRIPTION_INPUT}    ${description}
 
 Save Account
@@ -117,23 +126,30 @@ Save Account
 
 Click Save
     Wait Until Element Is Enabled    ${XPATH_SAVE_BUTTON}
+    LabelUI.Highlight Element    ${XPATH_SAVE_BUTTON}
     Click Element    ${XPATH_SAVE_BUTTON}
 
 Edit Current Account
     [Arguments]    ${phone}    ${website}
 
     Wait Until Element Is Visible    ${XPATH_EDIT_BUTTON}
+    LabelUI.Highlight Element    ${XPATH_EDIT_BUTTON}
     Click Element    ${XPATH_EDIT_BUTTON}
     Wait Until Element Is Visible    ${XPATH_ACCOUNT_NAME_INPUT}
+    LabelUI.Highlight Element    ${XPATH_PHONE_INPUT}
     Clear Element Text    ${XPATH_PHONE_INPUT}
+    LabelUI.Highlight Element    ${XPATH_PHONE_INPUT}
     Input Text    ${XPATH_PHONE_INPUT}    ${phone}
+    LabelUI.Highlight Element    ${XPATH_WEBSITE_INPUT}
     Clear Element Text    ${XPATH_WEBSITE_INPUT}
+    LabelUI.Highlight Element    ${XPATH_WEBSITE_INPUT}
     Input Text    ${XPATH_WEBSITE_INPUT}    ${website}
     Click Save
     Wait Until Page Contains    ${phone}    timeout=30 seconds
 
 Open Account Details
     Wait Until Element Is Visible    ${XPATH_DETAILS_TAB}
+    LabelUI.Highlight Element    ${XPATH_DETAILS_TAB}
     Click Element    ${XPATH_DETAILS_TAB}
 
 Account Details Should Contain

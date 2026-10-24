@@ -5,7 +5,7 @@ import unittest
 from email import policy
 from email.message import EmailMessage
 from email.parser import BytesParser
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, call, patch
 
 from libraries.salesforce_email_keywords import SalesforceEmailKeywords
 
@@ -13,6 +13,9 @@ from libraries.salesforce_email_keywords import SalesforceEmailKeywords
 class SalesforceEmailKeywordsTests(unittest.TestCase):
     def setUp(self):
         self.library = SalesforceEmailKeywords()
+        self.sleep_patcher = patch("libraries.label_ui_keywords.time.sleep")
+        self.sleep_patcher.start()
+        self.addCleanup(self.sleep_patcher.stop)
 
     def _message(self, body, content_type="text/plain"):
         message = EmailMessage()
@@ -147,6 +150,8 @@ class SalesforceEmailKeywordsTests(unittest.TestCase):
         field = Mock(tag_name="input")
         field.get_attribute.return_value = "904218"
         button = Mock()
+        selenium.attach_mock(field, "field")
+        selenium.attach_mock(button, "button")
         self.library._selenium = Mock(return_value=selenium)
         self.library._wait_for_verification_code = Mock(return_value="904218")
         self.library._visible_form_controls = Mock(return_value=[field])
@@ -172,6 +177,18 @@ class SalesforceEmailKeywordsTests(unittest.TestCase):
         field.send_keys.assert_called_once_with("904218")
         button.click.assert_called_once_with()
         self.library._wait_for_verification_code.assert_called_once()
+        self.assertLess(
+            selenium.mock_calls.index(
+                call.driver.execute_script(ANY, field)
+            ),
+            selenium.mock_calls.index(call.field.clear()),
+        )
+        self.assertLess(
+            selenium.mock_calls.index(
+                call.driver.execute_script(ANY, button)
+            ),
+            selenium.mock_calls.index(call.button.click()),
+        )
 
 
 if __name__ == "__main__":

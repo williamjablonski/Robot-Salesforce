@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, call, patch
 
 from libraries.label_ui_keywords import LabelUIKeywords
 
@@ -16,6 +16,9 @@ class LabelUIKeywordsTests(unittest.TestCase):
         )
         self.builtin_patcher.start()
         self.addCleanup(self.builtin_patcher.stop)
+        self.sleep_patcher = patch("libraries.label_ui_keywords.time.sleep")
+        self.sleep_patcher.start()
+        self.addCleanup(self.sleep_patcher.stop)
 
     def test_type_text_uses_associated_label_and_clears_existing_value(self):
         label = Mock(is_displayed=Mock(return_value=True))
@@ -38,6 +41,18 @@ class LabelUIKeywordsTests(unittest.TestCase):
             control,
             "Robot Account QA",
             clear=True,
+        )
+        self.assertLess(
+            self.selenium.mock_calls.index(
+                call.driver.execute_script(ANY, control)
+            ),
+            self.selenium.mock_calls.index(
+                call.input_text(
+                    control,
+                    "Robot Account QA",
+                    clear=True,
+                )
+            ),
         )
 
     def test_type_text_fails_when_label_matches_multiple_controls(self):
@@ -67,6 +82,51 @@ class LabelUIKeywordsTests(unittest.TestCase):
         self.library.click_text("Save")
 
         self.selenium.click_element.assert_called_once_with(button)
+        self.assertLess(
+            self.selenium.mock_calls.index(
+                call.driver.execute_script(ANY, button)
+            ),
+            self.selenium.mock_calls.index(
+                call.click_element(button)
+            ),
+        )
+
+    def test_highlight_element_targets_one_visible_locator_match(self):
+        button = Mock(id="save-button", is_displayed=Mock(return_value=True))
+        self.selenium.get_webelements.return_value = [button]
+        self.selenium.driver.execute_script.side_effect = ["color: red;", None]
+
+        self.library.highlight_element("id=save-button", 0.1)
+
+        self.selenium.wait_until_element_is_visible.assert_called_once_with(
+            "id=save-button",
+            error="No visible element found for locator 'id=save-button'.",
+        )
+        self.assertEqual(self.selenium.driver.execute_script.call_count, 2)
+        self.assertIn(
+            "3px solid #ff00ff",
+            self.selenium.driver.execute_script.call_args_list[0].args[0],
+        )
+        self.assertIn(
+            "setAttribute",
+            self.selenium.driver.execute_script.call_args_list[1].args[0],
+        )
+        self.assertEqual(
+            self.selenium.driver.execute_script.call_args_list[1].args[1:],
+            (button, "color: red;"),
+        )
+
+    def test_highlight_element_rejects_ambiguous_locator(self):
+        buttons = [
+            Mock(id="save-a", is_displayed=Mock(return_value=True)),
+            Mock(id="save-b", is_displayed=Mock(return_value=True)),
+        ]
+        self.selenium.get_webelements.return_value = buttons
+
+        with self.assertRaisesRegex(AssertionError, "found 2"):
+            self.library.highlight_element("xpath=//button")
+
+        self.selenium.driver.execute_script.assert_not_called()
 
     def test_click_text_supports_accessibly_labeled_comboboxes(self):
         combobox = Mock(id="stage-picker", is_displayed=Mock(return_value=True))

@@ -17,6 +17,8 @@ from robot.libraries.BuiltIn import BuiltIn
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 
+from libraries.label_ui_keywords import highlight_selenium_element
+
 
 class _HTMLTextParser(HTMLParser):
     def __init__(self) -> None:
@@ -105,16 +107,20 @@ class SalesforceEmailKeywords:
             verify_button,
             "verification button",
         )
-        field.clear()
         try:
+            highlight_selenium_element(selenium, field)
+            field.clear()
             field.send_keys(code)
             if field.get_attribute("value") != code:
+                highlight_selenium_element(selenium, field)
                 field.clear()
                 raise AssertionError(
                     "Salesforce verification code could not be entered."
                 )
+            highlight_selenium_element(selenium, button)
             button.click()
         except WebDriverException:
+            highlight_selenium_element(selenium, field)
             field.clear()
             raise
 
@@ -123,6 +129,7 @@ class SalesforceEmailKeywords:
             if "/lightning/" in selenium.get_location():
                 return
             time.sleep(0.5)
+        highlight_selenium_element(selenium, field)
         field.clear()
         raise AssertionError(
             "Salesforce did not complete login after the verification code was submitted."
