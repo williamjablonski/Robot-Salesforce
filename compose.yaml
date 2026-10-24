@@ -23,10 +23,10 @@ services:
       SF_ORDER_EFFECTIVE_DATE: ${SF_ORDER_EFFECTIVE_DATE:-}
       SF_ORDER_STATUS: ${SF_ORDER_STATUS:-}
     volumes:
-      - ./reports:/app/reports
+      - ./results:/app/results
       - ./tests:/app/tests:ro
       - ./libraries:/app/libraries:ro
       - ./resources:/app/resources:ro
       - ./data:/app/data:ro
       - ./docker/entrypoint.sh:/usr/local/bin/run-tests:ro
-    command: ["--outputdir", "/app/reports", "tests/"]
+    command: ["--outputdir", "/app/results", "tests/"]

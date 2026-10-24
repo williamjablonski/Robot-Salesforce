@@ -20,16 +20,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare report directory
-        run: mkdir -p reports && chmod 777 reports
+      - name: Prepare results directory
+        run: mkdir -p results && chmod 777 results
       - name: Validate Robot suite structure
-        run: docker compose run --rm -T tests --dryrun --outputdir /app/reports tests/salesforce-accounts.robot
-      - name: Save reports
+        run: docker compose run --rm -T tests --dryrun --outputdir /app/results tests/salesforce-accounts.robot
+      - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: robot-smoke-${{ github.run_attempt }}
-          path: reports/
+          path: results/
           if-no-files-found: warn
           retention-days: 7
 
@@ -74,19 +74,19 @@ jobs:
           fi
           curl --fail --silent --show-error --location --proto "=https" --proto-redir "=https" \
             "$QFORCE_WHEEL_URL" --output "docker/wheels/$QFORCE_WHEEL_FILENAME"
-          mkdir -p reports
-          chmod 777 reports
+          mkdir -p results
+          chmod 777 results
       - name: Build QForce-enabled image
         run: docker build --tag robot-salesforce-tests:qforce .
       - name: Verify QForce import
         run: docker compose run --rm -T --pull never --entrypoint python tests -c 'import QForce'
       - name: Execute every suite
         run: docker compose run --rm -T --pull never tests tests/
-      - name: Save reports
+      - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: robot-full-suite-${{ github.run_attempt }}
-          path: reports/
+          path: results/
           if-no-files-found: warn
           retention-days: 3

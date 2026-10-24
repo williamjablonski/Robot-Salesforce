@@ -90,26 +90,26 @@ authentication.
 Run all project test suites from the macOS terminal:
 
 ```bash
-python -m libraries.robot_runner --outputdir reports tests/
+python -m libraries.robot_runner --outputdir results tests/
 ```
 
 The runner discovers the `.robot` suites under `tests/`, saves the HTML report
-and log in `reports/`, and adds captured failure screenshots to `report.html`.
+and log in `results/`, and adds captured failure screenshots to `report.html`.
 Salesforce suites need their required libraries, browser setup, and environment
 variables configured as described above.
 
 To execute all suites in Docker (without dry run):
 
 ```bash
-docker compose run --rm -T tests --outputdir /app/reports tests/
+docker compose run --rm -T tests --outputdir /app/results tests/
 ```
 
 To run an individual suite:
 
 ```bash
-python -m libraries.robot_runner --outputdir reports tests/smoke.robot
-python -m libraries.robot_runner --outputdir reports tests/salesforce-QForce.robot
-python -m libraries.robot_runner --outputdir reports tests/salesforce-lightning-xpath.robot
+python -m libraries.robot_runner --outputdir results tests/smoke.robot
+python -m libraries.robot_runner --outputdir results tests/salesforce-QForce.robot
+python -m libraries.robot_runner --outputdir results tests/salesforce-lightning-xpath.robot
 ```
 
 The Salesforce examples use `SF_LOGIN_URL`, `SF_LIGHTNING_URL`, `SF_USERNAME`,
@@ -121,7 +121,7 @@ above; other SSO or MFA methods still require the organization's approved flow.
 The Salesforce suites create uniquely named records in the configured org;
 records are not automatically deleted. Use a dedicated test user and review
 production automations and side effects before enabling production writes. The
-HTML report and log are written to `reports/`. Open `report.html` to see the
+HTML report and log are written to `results/`. Open `report.html` to see the
 execution summary and captured failure screenshots; `log.html` retains the
 detailed keyword-level log.
 
